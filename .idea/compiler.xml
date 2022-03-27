@@ -6,7 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="DWDA_PROJECT" />
+        <module name="D2_DB" />
+        <module name="dwda_project_gp12" />
       </profile>
     </annotationProcessing>
   </component>

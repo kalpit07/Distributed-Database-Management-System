@@ -61,7 +61,7 @@ public class Login
                 String[] allLines = eachLine.split("\n");
                 for (String everyLine : allLines)
                 {
-                    String[] values = everyLine.split(";");
+                    String[] values = everyLine.split("\\|");
                     if(values[0].equals(username))
                     {
                         if(values[1].equals(password))
@@ -92,7 +92,7 @@ public class Login
                 String[] allLines = eachLine.split("\n");
                 for(String everyLine : allLines)
                 {
-                    String[] values = everyLine.split(";");
+                    String[] values = everyLine.split("\\|");
                     if(values[0].equals(username))
                     {
                         System.out.println("Your security questions is: '" + values[2] + "'");

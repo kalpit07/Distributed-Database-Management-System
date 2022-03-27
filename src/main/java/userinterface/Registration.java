@@ -60,7 +60,7 @@ public class Registration
             String[] allLines = line.split("\n");
             for(String everyLine : allLines)
             {
-                String[] values = everyLine.split(";");
+                String[] values = everyLine.split("\\|");
                 if(values[0].equals(hashedUsername))
                 {
                     return true;

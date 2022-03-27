@@ -3,7 +3,7 @@ import java.io.File;
 
 public class UserProfile
 {
-    public static void createFile()
+    public static void createUserProfileFile()
     {
         try
         {

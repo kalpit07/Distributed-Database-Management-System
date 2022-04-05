@@ -15,10 +15,11 @@ public class CreateTable {
     private String path1;
     private String path2;
     private List<String> constraintsList = new ArrayList<>();
-    private String databaseName = null;
+    private String databasePath = null;
 
-    public CreateTable(String databaseName) {
-        this.databaseName = databaseName;
+    // database path, database name will be the arguments
+    public CreateTable(String databasePath) {
+        this.databasePath = databasePath;
     }
 
     // Assumption that there is no space between "(" bracket and table name
@@ -83,7 +84,7 @@ public class CreateTable {
     public void createAFileForTypeOfAttributesOfTheTable() {
 
         try {
-            File file = new File(databaseName + "\\"+tableName + "_Datatype.txt");
+            File file = new File(databasePath + "\\" + tableName + "-metadata.txt");
             if(file.createNewFile()) {
                 // add a logger here to say that the file is created
                 System.out.println("File Created:" + file.getName());
@@ -91,7 +92,8 @@ public class CreateTable {
             else {
                 System.out.println("File already exists");
             }
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, false));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true));
+            bufferedWriter.write(tableName + "\n");
             // To create one file where we store the data types
             for(Map.Entry<String,String> entry: hashMapToStoreTableData.entrySet()) {
                 bufferedWriter.write(entry.getKey() + "," + entry.getValue() + ";");
@@ -108,7 +110,7 @@ public class CreateTable {
     public void createAFileForValuesOfTheTable() {
 
         try {
-            File file = new File(databaseName + "\\" + tableName + "-Values.txt");
+            File file = new File(databasePath + "\\" + tableName + "-Values.txt");
             if (file.createNewFile()) {
                 System.out.println("File was Created:" + file.getName());
             } else {
@@ -127,6 +129,7 @@ public class CreateTable {
     public static void main(String[] args) {
         String userQuery = "CREATE TABLE Persons(PersonID int,LastName varchar(255),FirstName varchar(255),Address varchar(255),City varchar(255));";
         // CREATE TABLE Persons( ID int NOT NULL, LastName varchar(255) NOT NULL, FirstName varchar(255), Age int, PRIMARY KEY (ID) );
+        // VM1/Persons/Persons-Value.txt , Persons-Datatype.txt
         CreateTable createTable = new CreateTable("Databases/persons");
         createTable.identifyTheCreateQueryElements(userQuery);
         createTable.createAFileForTypeOfAttributesOfTheTable();

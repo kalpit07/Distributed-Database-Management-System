@@ -1,3 +1,6 @@
+import CreateOperation.CreateDatabase;
+import CreateOperation.CreateTable;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +35,8 @@ public class QueryImplementation {
     public static void createDatabase(String query) {
         Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_CREATE_DATABASE).matcher(query);
         matchQuery(matcher, "CREATE DATABASE");
-
+        CreateDatabase database = new CreateDatabase(query);
+        database.executeQuery();
         // **************** CREATE folder for new database
         System.out.println("Database \"" + "db_name" + "\" created successfully.");
         // **************** Add Database to Local META file
@@ -42,11 +46,17 @@ public class QueryImplementation {
     public static void createTable(String query) {
         Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_CREATE_TABLE).matcher(query);
         matchQuery(matcher, "CREATE TABLE");
+        // VM1 or VM2 , also pass database name
+        CreateTable createTable = new CreateTable("VM1/persons");
+        createTable.identifyTheCreateQueryElements(query);
+        createTable.createAFileForTypeOfAttributesOfTheTable();
+        createTable.createAFileForValuesOfTheTable();
     }
 
     public static void useDatabase() {
         // **************** Check if database exists in Global META file
         // **************** Add Database to Global META file
+        // set the database name as persons
     }
 
     public static void parseCREATE(String query) {

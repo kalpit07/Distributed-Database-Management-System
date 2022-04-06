@@ -2,10 +2,12 @@ package CreateOperation;
 
 import Utilities.Constants;
 
+import javax.xml.crypto.Data;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class CreateDatabase {
     String databaseName;
@@ -21,22 +23,20 @@ public class CreateDatabase {
         return databaseName;
     }
 
-    public void executeQuery(){
+    public void executeQuery() {
         String[] queryWords;
         queryWords = query.split(" ");
         databaseName = queryWords[2];
         // VM1/Persons -- persons is database ( it is a folder )
-        DatabasePath = DatabasePath + "/" + databaseName;
+//        DatabasePath = "VM2//db3";
+        DatabasePath = DatabasePath + "//" + databaseName;
         File file = new File(DatabasePath);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        if(file.mkdir()) {
+        boolean isDatabaseCreated = file.mkdir();
+        if(isDatabaseCreated) {
             // a file should be created for meta data
             createMetaDataFile();
             System.out.println("Folder with Database name successfully created");
         }
-
         else {
             System.out.println("Error in creating database");
         }
@@ -44,7 +44,8 @@ public class CreateDatabase {
 
     public void createMetaDataFile() {
         try {
-            File file = new File(DatabasePath + "\\" + databaseName + "-Meta.txt");
+            File file = new File(DatabasePath + "//" + databaseName + "-Meta.txt");
+//            File file = new File("VM2//db3//db3"+ "-Meta.txt");
             if (file.createNewFile()) {
                 System.out.println("File was Created:" + file.getName());
             } else {
@@ -57,5 +58,10 @@ public class CreateDatabase {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public static void main(String[] args) {
+        CreateDatabase db = new CreateDatabase("create database db2");
+        db.executeQuery();
     }
 }

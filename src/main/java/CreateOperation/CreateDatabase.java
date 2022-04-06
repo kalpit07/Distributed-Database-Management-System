@@ -27,8 +27,6 @@ public class CreateDatabase {
         String[] queryWords;
         queryWords = query.split(" ");
         databaseName = queryWords[2];
-        // VM1/Persons -- persons is database ( it is a folder )
-//        DatabasePath = "VM2//db3";
         DatabasePath = DatabasePath + "//" + databaseName;
         File file = new File(DatabasePath);
         boolean isDatabaseCreated = file.mkdir();

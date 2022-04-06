@@ -48,6 +48,8 @@ public class QueryImplementation {
         Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_CREATE_TABLE).matcher(query);
         matchQuery(matcher, "CREATE TABLE");
         // VM1 or VM2 , also pass database name
+        //we need database path and database name here from use database class from setters and getters
+        //usedb.getdbpath(), usedb.getdbname()
         CreateTable createTable = new CreateTable("VM1/persons");
         createTable.identifyTheCreateQueryElements(query);
         createTable.createAFileForTypeOfAttributesOfTheTable();
@@ -57,7 +59,7 @@ public class QueryImplementation {
     public static void useDatabase() {
         // **************** Check if database exists in Global META file
         // **************** Add Database to Global META file
-        // set the database name as persons
+        // set the database name
     }
 
     public static void parseCREATE(String query) {

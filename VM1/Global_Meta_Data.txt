@@ -1,0 +1,3 @@
+db1|VM1
+db2|VM1
+db3|VM2

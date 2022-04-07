@@ -13,7 +13,7 @@ public class Transaction {
 
 
     //Taking input in transaction module
-    public static void takeInputQuery(){
+    public static void takeInputQuery() throws Exception{
 
         boolean flag = true;
         Scanner sc = new Scanner(System.in);
@@ -51,7 +51,7 @@ public class Transaction {
 
     }
 
-    // public static void main(String[] args){
+    // public static void main(String[] args) throws Exception{
     //     takeInputQuery();
     //     startTransaction();
     // }

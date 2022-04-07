@@ -1,5 +1,7 @@
 package Transaction;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.*;
 
 /**
@@ -8,8 +10,9 @@ import java.util.*;
 
 public class Lock {
 
-    public static void acquireLock(String query){
+    public static void acquireLock(String query) throws Exception{
         String tableName = getTableName(query);
+        writer(tableName);
         System.out.println(tableName);
     }
 
@@ -23,6 +26,18 @@ public class Lock {
             tableName = words[2];
             return tableName.replaceAll("[^a-zA-Z0-9]","");
         }
+    }
+
+    private static void writer(String tableName) throws Exception{
+        String id = Config.idGenerator();
+        File file = new File("./src/main/java/Transaction.txt");
+        if(!file.exists()){
+            file.createNewFile();
+        }
+        FileWriter fileWriter = new FileWriter(file);
+        fileWriter.append(id+"|"+tableName+"|"+System.currentTimeMillis()+"\n");
+        fileWriter.flush();
+        fileWriter.close();
     }
 
 }

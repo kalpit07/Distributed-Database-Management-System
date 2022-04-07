@@ -17,8 +17,8 @@ public class QueryImplementation {
     static String TABLE_NAME;
 
     static String BASE_DIRECTORY = "VM/";
-    static String LOCAL_METADATA_FILE = "Local Metadata.txt";
-    static String GLOBAL_METADATA_FILE = "Global Metadata.txt";
+    static String LOCAL_METADATA_FILE = "Local_Meta_Data.txt";
+    static String GLOBAL_METADATA_FILE = "Global_Data_Dictionary.txt";
 
     static List<String> DATABASES = new ArrayList<>();
     static List<String> LOCAL_DATABASES = new ArrayList<>();

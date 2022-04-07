@@ -16,14 +16,20 @@ public class CreateDatabase {
     String query;
 
     public CreateDatabase(String query){
+
         this.query = query;
+
     }
 
+    ///not for now
     public String getDatabaseName() {
+
         return databaseName;
+
     }
 
     public void executeQuery() {
+
         String[] queryWords;
         queryWords = query.split(" ");
         databaseName = queryWords[2];
@@ -31,9 +37,10 @@ public class CreateDatabase {
         File file = new File(DatabasePath);
         boolean isDatabaseCreated = file.mkdir();
         if(isDatabaseCreated) {
-            // a file should be created for meta data
-            createMetaDataFile();
+
             System.out.println("Folder with Database name successfully created");
+            // a file should be created for metadata
+            createMetaDataFile();
         }
         else {
             System.out.println("Error in creating database");
@@ -46,11 +53,12 @@ public class CreateDatabase {
 //            File file = new File("VM2//db3//db3"+ "-Meta.txt");
             if (file.createNewFile()) {
                 System.out.println("File was Created:" + file.getName());
-            } else {
+            }
+            else {
                 System.out.println("The file is already present, Please try with a different name for the meta data file.");
             }
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true));
-            // What goes into meta data file, comes over here
+            // What goes into metadata file, comes over here
             bufferedWriter.write("");
             bufferedWriter.close();
         } catch (IOException e) {

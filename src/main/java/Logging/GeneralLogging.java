@@ -21,7 +21,7 @@ public class GeneralLogging {
         return System.nanoTime();
     }
 
-    private static String currentDateTime() {
+    public static String currentDateTime() {
         StringBuilder result = new StringBuilder();
         result.append("Date: ").append(LocalDate.now()).append(" ");
         result.append("Time: ").append(LocalTime.now()).append(" ");
@@ -42,7 +42,7 @@ public class GeneralLogging {
 
     private static void logQueryExecutionTime() {
         System.out.println("Execution Time (in NanoSeconds) - "+ GeneralLogging.calculateTimeDifference());
-
+        GeneralLogging.createAFileForGeneralLogs("Execution Time (in NanoSeconds) - "+ GeneralLogging.calculateTimeDifference());
     }
 
     public static void createAFileForGeneralLogs(String messageToLog) {

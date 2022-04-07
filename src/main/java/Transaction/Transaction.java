@@ -46,10 +46,10 @@ public class Transaction {
 
     }
 
-    public static void main(String[] args){
-        takeInputQuery();
-        startTransaction();
-    }
+    // public static void main(String[] args){
+    //     takeInputQuery();
+    //     startTransaction();
+    // }
 
     public static void startTransaction(){
 

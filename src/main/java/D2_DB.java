@@ -52,8 +52,6 @@ public class D2_DB
                     System.out.println("Global_Data_Dictionary file is at " + global_metadata.getCanonicalPath());
                 }
             }
-
-            UserProfile.createUserProfileFile();
         }
         catch (Exception e)
         {
@@ -66,6 +64,7 @@ public class D2_DB
     {
         System.out.println("Welcome to D2_DB application..!");
         checkRootDirectory();
+        UserProfile.createUserProfileFile();
         Menu.mainMenu();
     }
 }

@@ -51,10 +51,10 @@ public class QueryImplementation {
 //        checkRootDirectory();
 //        getDatabase();
 
-        if (parseQuery(query)) {
-
-        }
-        executeQuery(query);
+//        if (parseQuery(query)) {
+//
+//        }
+//        executeQuery(query);
 
 //        String query = "USE teachers;";
 //        System.out.println("before + " + DATABASE);

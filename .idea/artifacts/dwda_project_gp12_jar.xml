@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="dwda_project_gp12:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/dwda_project_gp12_jar</output-path>
+    <root id="archive" name="dwda_project_gp12.jar">
+      <element id="module-output" name="dwda_project_gp12" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/jcraft/jsch/0.1.55/jsch-0.1.55.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

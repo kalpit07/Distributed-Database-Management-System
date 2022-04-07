@@ -1,4 +1,4 @@
-package Logging;
+package logmanagement;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -14,21 +14,7 @@ public class LogManagement {
         String dBTime = LocalDate.now() + " " + LocalTime.now();
         return dBTime;
     }
-
-//    public static Long execTime(){
-//        long startTime = System.nanoTime();
-//        long endTime = System.nanoTime();
-//        long execTime = endTime - startTime;
-//        return execTime;
-//    }
-//    public static void logFileCreater() throws IOException {
-//        File queryLog = new File("/logFiles/queryLog.txt");
-//        if (queryLog.createNewFile()) {
-//            System.out.println("File created: " + queryLog.getName());
-//        } else {
-//            System.out.println("File already exists.");
-//        }
-//    }
+    
 
     public static FileWriter queryLogger(String username, String query) throws Exception {
         FileWriter queryFile = new FileWriter("/logFiles/queryLog.txt", true);

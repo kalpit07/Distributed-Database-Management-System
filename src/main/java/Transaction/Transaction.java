@@ -24,7 +24,7 @@ public class Transaction {
         while(flag){
             System.out.println("Enter Query:");
             String query = sc.nextLine();
-            Lock.acquireLock(query,transactionId);
+            //Lock.acquireLock(query,transactionId);
             if(query.equalsIgnoreCase("commit;")){
                 break;
             }

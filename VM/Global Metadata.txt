@@ -1,2 +1,0 @@
-students|local
-teachers|local

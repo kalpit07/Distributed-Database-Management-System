@@ -63,27 +63,6 @@ public class QueryImplementation {
         }
     }
 
-    public static void checkMetadataFile() throws IOException {
-        File local_metadata = new File(BASE_DIRECTORY + LOCAL_METADATA_FILE);
-        File global_metadata = new File(BASE_DIRECTORY + GLOBAL_METADATA_FILE);
-
-        if (!local_metadata.exists()) {
-            local_metadata.createNewFile();
-        }
-
-        if (!global_metadata.exists()) {
-            global_metadata.createNewFile();
-        }
-    }
-
-    public static void checkRootDirectory() throws IOException {
-        File root_directory = new File(BASE_DIRECTORY);
-        if(!root_directory.exists()) {
-            root_directory.mkdirs();
-        }
-        checkMetadataFile();
-    }
-
     public static boolean matchQuery(Matcher matcher, String queryType) {
         if (matcher.matches()) {
 //            System.out.println("Valid " + queryType + " Query !");
@@ -279,7 +258,6 @@ public class QueryImplementation {
 //    }
 
     public static void main(String[] args) throws IOException {
-        checkRootDirectory();
         getDatabase();
 //        String query = "USE teachers;";
 //        System.out.println("before + " + DATABASE);

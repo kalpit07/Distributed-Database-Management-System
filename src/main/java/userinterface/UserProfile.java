@@ -7,7 +7,7 @@ public class UserProfile
     {
         try
         {
-            File fileWriter = new File(System.getProperty("user.dir") + "/User_Profile.txt");
+            File fileWriter = new File(System.getProperty("user.dir") + "/VM/User_Profile.txt");
             if(!fileWriter.exists() && !fileWriter.isFile())
             {
                 boolean done = fileWriter.createNewFile();

@@ -1,3 +1,6 @@
+package Transaction;
+
+import java.io.ObjectInputFilter;
 import java.util.*;
 
 /**
@@ -11,11 +14,13 @@ public class Transaction {
 
     //Taking input in transaction module
     public static void takeInputQuery(){
+
         boolean flag = true;
         Scanner sc = new Scanner(System.in);
         while(flag){
             System.out.println("Enter Query:");
             String query = sc.nextLine();
+            Lock.acquireLock(query);
             if(query.equalsIgnoreCase("commit;")){
                 break;
             }

@@ -11,16 +11,20 @@ public class Transaction {
     //For storing query validation and type this kind:--- true;DDL
     public static HashMap<String, String> queryTable = new HashMap<String,String>();
 
+    public static void startTransaction() throws Exception{
+        String transactionId = Config.idGenerator();
+        takeInputQuery(transactionId);
+    }
 
     //Taking input in transaction module
-    public static void takeInputQuery() throws Exception{
+    public static void takeInputQuery(String transactionId) throws Exception{
 
         boolean flag = true;
         Scanner sc = new Scanner(System.in);
         while(flag){
             System.out.println("Enter Query:");
             String query = sc.nextLine();
-            Lock.acquireLock(query);
+            Lock.acquireLock(query,transactionId);
             if(query.equalsIgnoreCase("commit;")){
                 break;
             }
@@ -56,7 +60,7 @@ public class Transaction {
     //     startTransaction();
     // }
 
-    public static void startTransaction(){
+    public static void startExecution(){
 
         String[] keys = queryTable.keySet().toArray(new String[0]);
 

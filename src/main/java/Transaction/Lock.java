@@ -10,9 +10,9 @@ import java.util.*;
 
 public class Lock {
 
-    public static void acquireLock(String query) throws Exception{
+    public static void acquireLock(String query,String transactionId) throws Exception{
         String tableName = getTableName(query);
-        writer(tableName);
+        writer(tableName,transactionId);
         System.out.println(tableName);
     }
 
@@ -28,14 +28,14 @@ public class Lock {
         }
     }
 
-    private static void writer(String tableName) throws Exception{
-        String id = Config.idGenerator();
+    private static void writer(String tableName, String transactionId) throws Exception{
+
         File file = new File("./src/main/java/Transaction.txt");
         if(!file.exists()){
             file.createNewFile();
         }
-        FileWriter fileWriter = new FileWriter(file);
-        fileWriter.append(id+"|"+tableName+"|"+System.currentTimeMillis()+"\n");
+        FileWriter fileWriter = new FileWriter(file,true);
+        fileWriter.append(transactionId+"|"+tableName+"|"+System.currentTimeMillis()+"\n");
         fileWriter.flush();
         fileWriter.close();
     }

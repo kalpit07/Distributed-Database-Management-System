@@ -5,36 +5,27 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static queryimplementation.ParseQuery.*;
+import static queryimplementation.ExecuteQuery.*;
+
 public class QueryImplementation {
 
-    static String DATABASE;
-    static String TABLE_NAME;
+    public static String DATABASE;
+    public static String TABLE_NAME;
 
-    static String BASE_DIRECTORY = "VM/";
-    static String LOCAL_METADATA_FILE = "Local_Meta_Data.txt";
-    static String GLOBAL_METADATA_FILE = "Global_Data_Dictionary.txt";
+    public static String BASE_DIRECTORY = "VM/";
+    public static String LOCAL_METADATA_FILE = "Local Metadata.txt";
+    public static String GLOBAL_METADATA_FILE = "Global Metadata.txt";
 
-    static List<String> DATABASES = new ArrayList<>();
-    static List<String> LOCAL_DATABASES = new ArrayList<>();
-    static List<String> GLOBAL_DATABASES = new ArrayList<>();
+    public static List<String> DATABASES = new ArrayList<>();
+    public static List<String> LOCAL_DATABASES = new ArrayList<>();
+    public static List<String> GLOBAL_DATABASES = new ArrayList<>();
 
-    // VARCHAR LIMIT (1-255) REGEX ------------------> \b([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-5][0-5])\b
 
-    static String REGEX_FOR_QUERY_CREATE_DATABASE = "\\s*create\\s+database\\s+[0-9a-zA-Z_]+\\s*;?\\s*";
-    static String REGEX_FOR_QUERY_CREATE_TABLE = "\\s*create\\s+table\\s+[0-9a-zA-Z_]+\\s*\\(\\s*([0-9a-zA-Z_]+\\s+(int|varchar)\\s*,\\s*)*[0-9a-zA-Z_]+\\s+(int|varchar)\\s*\\)\\s*;?\\s*";
-    static String REGEX_FOR_QUERY_USE = "\\s*use\\s+[0-9a-zA-Z_]+\\s*;?\\s*";
-    static String REGEX_FOR_QUERY_INSERT = "\\s*insert\\s+into\\s+[0-9a-zA-Z_]+(\\s*\\(\\s*([0-9a-zA-Z_]+\\s*,\\s*)*[0-9a-zA-Z_]+\\s*\\))?\\s+values\\s*\\(\\s*(('[0-9a-zA-Z _?!@&*()-]*'|\\d+)\\s*,\\s*)*('[0-9a-zA-Z _?!@&*()-]*'|\\d+)\\s*\\)\\s*;?\\s*";
-    static String REGEX_FOR_QUERY_SELECT = "\\s*select\\s+(\\*|([0-9a-zA-Z_]+\\s*,\\s*)*[0-9a-zA-Z_]+)\\s+from\\s+[0-9a-zA-Z_]+\\s*(\\swhere\\s+[0-9a-zA-Z_]+\\s*=\\s*('[0-9a-zA-Z _?!@&*()-]*'|\\d+))?;?\\s*";
-    static String REGEX_FOR_QUERY_UPDATE = "\\s*update\\s+[0-9a-zA-Z_]+\\s+set\\s+(([0-9a-zA-Z_]+\\s*=\\s*('[0-9a-zA-Z _?!@&*()-]*'|\\d+)\\s*,\\s*)*[0-9a-zA-Z_]+\\s*=\\s*('[0-9a-zA-Z _?!@&*()-]*'|\\d+)\\s+where\\s+[0-9a-zA-Z_]+\\s*=\\s*('[0-9a-zA-Z _?!@&*()-]*'|\\d+)|[0-9a-zA-Z_]+\\s*=\\s*('[0-9a-zA-Z _?!@&*()-]*'|\\d+))\\s*;?\\s*";
-    static String REGEX_FOR_QUERY_DELETE = "\\s*delete\\s+from\\s+[0-9a-zA-Z_]+\\s*(\\swhere\\s+[0-9a-zA-Z_]+\\s*=\\s*('[0-9a-zA-Z _?!@&*()-]*'|\\d+)\\s*)?;?\\s*";
-
-    // ---------------------------------------------------------------------------------------------------------------
 
 //    static String REGEX_FOR_DATABASE_NAME = "[0-9a-zA-Z$_]+";
 
@@ -44,232 +35,92 @@ public class QueryImplementation {
         return query.trim().replaceAll("\\s+", " ").toLowerCase();
     }
 
-    public static void getDatabase() throws FileNotFoundException {
-        File global_metadata = new File(BASE_DIRECTORY + GLOBAL_METADATA_FILE);
-        Scanner reader = new Scanner(global_metadata);
-        while(reader.hasNextLine()) {
-            String line = reader.nextLine();
-            String[] line_parts = line.split("\\|");
-
-            if (line_parts[1] == "global") {
-                GLOBAL_DATABASES.add(line_parts[0]);
-            }
-
-            if (line_parts[1] == "local") {
-                LOCAL_DATABASES.add(line_parts[0]);
-            }
-
-            DATABASES.add(line_parts[0]);
-        }
-    }
-
-    public static boolean matchQuery(Matcher matcher, String queryType) {
-        if (matcher.matches()) {
-//            System.out.println("Valid " + queryType + " Query !");
-            return true;
-        } else {
-//            System.out.println("Invalid " + queryType + " Query !");
-            return false;
-        }
-    }
-
-    public static boolean parseCREATEDatabase(String query) throws IOException {
-        Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_CREATE_DATABASE).matcher(query);
-        if (matchQuery(matcher, "CREATE DATABASE")) {
-          String[] query_parts = query.split("\\s+");
-          String database = query_parts[2];
-
-          for (String db : DATABASES) {
-              if (db.equals(database)) {
-                  System.out.println("Database already exists!");
-                  return false;
-              }
-          }
-        }
-
-        return true;
-    }
-
-    public static boolean parseCREATETable(String query) {
-        Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_CREATE_TABLE).matcher(query);
-        if (matchQuery(matcher, "CREATE TABLE")) {
-            // Check Database, Tablename, columns
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean parseCREATE(String query) throws IOException {
-
-        String[] query_parts = query.split("\\s+");
-
-        if (query_parts.length >= 3) {
-            String createWhat = query_parts[1];
-
-            switch (createWhat) {
-                case "database":
-                    return parseCREATEDatabase(query);
-                case "table":
-                    return parseCREATETable(query);
-                default:
-                    System.out.println("Can't create - " + createWhat);
-                    return false;
-            }
-
-        } else {
-            System.out.println("Invalid CREATE Query!");
-            return false;
-        }
-    }
-
-    public static boolean parseUSE(String query) {
-        Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_USE).matcher(query);
-        if (matchQuery(matcher, "USE")) {
-            String[] query_parts = query.split("\\s+");
-            String database = query_parts[1];
-
-            for (String db : DATABASES) {
-                if (db.equals(database)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean parseINSERT(String query) {
-        Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_INSERT).matcher(query);
-        return matchQuery(matcher, "INSERT");
-    }
-
-    public static boolean parseSELECT(String query) {
-        Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_SELECT).matcher(query);
-        return matchQuery(matcher, "SELECT");
-    }
-
-    public static boolean parseUPDATE(String query) {
-        Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_UPDATE).matcher(query);
-        return matchQuery(matcher, "UPDATE");
-    }
-
-    public static boolean parseDELETE(String query) {
-        Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_DELETE).matcher(query);
-        return matchQuery(matcher, "DELETE");
-    }
-
-    public static void executeCREATE(String query) throws IOException {
-        String[] query_parts = query.split("\\s+");
-        String database = query_parts[2];
-
-        new File(BASE_DIRECTORY + database).mkdirs();
-        FileWriter fw_global = new FileWriter(BASE_DIRECTORY + GLOBAL_METADATA_FILE, true);
-        FileWriter fw_local = new FileWriter(BASE_DIRECTORY + LOCAL_METADATA_FILE, true);
-
-        fw_global.write(database + "|" + "local\n");
-        fw_local.write(database + "\n");
-
-        fw_global.close();
-        fw_local.close();
-    }
-
-    public static void executeUSE(String query) {
-        String[] queryParts = query.split("\\s+");
-        String database = queryParts[1];
-
-        DATABASE = database;
-    }
-
-    public static void executeINSERT() {}
-
-    public static void executeSELECT() {}
-
-    public static void executeUPDATE() {}
-
-    public static void executeDELETE() {}
-
-    public static boolean parseQuery(String query) throws IOException {
-
-        String formatted_query = removeExtraSpaces(query);
-        String queryType = formatted_query.split("\\s")[0];
-
-        if (formatted_query.substring(formatted_query.length()-1).equals(";")) {
-            formatted_query = formatted_query.substring(0, formatted_query.length()-1).trim();
-        }
 
 
-        switch (queryType) {
-            case "create":
-                System.out.println("CREATE Query");
-                return parseCREATE(formatted_query);
-            case "use":
-                System.out.println("USE Query");
-                return parseUSE(formatted_query);
-            case "insert":
-                System.out.println("INSERT Query");
-                return parseINSERT(formatted_query);
-            case "select":
-                System.out.println("SELECT Query");
-                return parseSELECT(formatted_query);
-            case "update":
-                System.out.println("UPDATE Query");
-                return parseUPDATE(formatted_query);
-            case "delete":
-                System.out.println("DELETE Query");
-                return parseDELETE(formatted_query);
-            default:
-                System.out.println("Invalid Query Type! - " + queryType.toUpperCase());
-                return false;
-        }
 
-    }
 
-//    public static boolean executeQuery(String query) {
-//        String formatted_query = removeExtraSpaces(query);
-//        String queryType = formatted_query.split("\\s")[0];
-//
-//        switch (queryType) {
-//            case "create":
-////                System.out.println("CREATE Query");
-//                return executeCREATE(formatted_query);
-//            break;
-//            case "use":
-////                System.out.println("USE Query");
-//                executeUSE(formatted_query);
-//                break;
-//            case "insert":
-////                System.out.println("INSERT Query");
-//                executeINSERT(formatted_query);
-//                break;
-//            case "select":
-////                System.out.println("SELECT Query");
-//                executeSELECT(formatted_query);
-//                break;
-//            case "update":
-////                System.out.println("UPDATE Query");
-//                executeUPDATE(formatted_query);
-//                break;
-//            case "delete":
-////                System.out.println("DELETE Query");
-//                executeDELETE(formatted_query);
-//                break;
-//            default:
-//                System.out.println("Invalid Query Type! - " + queryType.toUpperCase());
-//        }
-//    }
+
+
+
+
+
+
+
 
     public static void main(String[] args) throws IOException {
-        getDatabase();
+//        checkRootDirectory();
+//        getDatabase();
+
+        if (parseQuery(query)) {
+
+        }
+        executeQuery(query);
+
 //        String query = "USE teachers;";
 //        System.out.println("before + " + DATABASE);
-        System.out.println(parseQuery("USE a1;"));
-//        System.out.println("after + " + DATABASE);
 
-//        System.out.println("DATABASE : " + DATABASE);
-//        parseQuery("Use students;");
-//        System.out.println("DATABASE : " + DATABASE);
-//        parseQuery("USE teachers;");
-//        System.out.println("DATABASE : " + DATABASE);
-//        parseQuery("USE avengers;");
-//        System.out.println("DATABASE : " + DATABASE);
+//        System.out.println(formatQuery("create database    sdasda   ;"));
+
+//        String primary_key_string = Pattern.compile().matcher("create table Orders(OrderID int,OrderNumber int,PersonID int,primary key (OrderID),foreign key (PersonID) references Persons(PersonID));").group(1);
+
+//        Pattern pattern = Pattern.compile("primary\\skey\\s*\\(\\s*[0-9a-zA-Z_]+\\s*\\)\\s*");
+//        Matcher matcher = pattern.matcher("create table Orders(OrderID int,OrderNumber int,PersonID int,primary key (OrderID),foreign key (PersonID) references Persons(PersonID));");
+
+//        Pattern pattern = Pattern.compile("[0-9a-zA-Z_]+");
+//        Matcher matcher = pattern.matcher("create table Orders(OrderID int,OrderNumber int,PersonID int,primary key (OrderID),foreign key (PersonID) references Persons(PersonID));");
+//
+//
+//        if (matcher.find()) {
+//            System.out.println("Hi");
+//            System.out.println(matcher.group(1));
+//            System.out.println(matcher.group(2));
+////            Assert.assertEquals("25-09-1984", matcher.group());
+//        }
+
+        String query = "create table Orders(OrderID int,OrderNumber int,PersonID int,primary key (OrderID),foreign key (PersonID) references Persons(PersonID));";
+//        int first=0, last=0;
+//        int start_index = query.indexOf("primary key") + "primary key".length();
+//        for (int i=start_index; i<query.length(); i++) {
+//            if (Character.compare(query.toCharArray()[i], '(') == 0) {
+//                first = i;
+//            }
+//            if (Character.compare(query.toCharArray()[i], ')') == 0) {
+//                last = i;
+//                break;
+//            }
+//        }
+//
+//        String pk_column = query.substring(first+1, last).trim();
+//        System.out.println(pk_column);
+
+        Set<String> column_names = new HashSet<String>();
+        int column_count = 0;
+
+        int firstParenthesis=0, lastParenthesis=0;
+        for (int index=0; index<query.length(); index++) {
+            if (Character.compare(query.toCharArray()[index], '(') == 0) {
+                firstParenthesis = index;
+                break;
+            }
+        }
+        for (int index=query.length()-1; index>=0; index--) {
+            if (Character.compare(query.toCharArray()[index], ')') == 0) {
+                lastParenthesis = index;
+                break;
+            }
+        }
+
+        String[] column_parts = query.substring(firstParenthesis+1,lastParenthesis).trim().split(",");
+        for (String s : column_parts) {
+            if (!(s.contains("primary key") || s.contains("foreign key"))) {
+                column_count += 1;
+
+                String[] s_parts = s.trim().split("\\s+");
+                column_names.add(s_parts[0]);
+            }
+        }
+        System.out.println(column_count);
+        System.out.println(column_names);
+
     }
 }

@@ -14,7 +14,7 @@ public class LogManagement {
         String dBTime = LocalDate.now() + " " + LocalTime.now();
         return dBTime;
     }
-    
+
 
     public static FileWriter queryLogger(String username, String query) throws Exception {
         FileWriter queryFile = new FileWriter("/logFiles/queryLog.txt", true);

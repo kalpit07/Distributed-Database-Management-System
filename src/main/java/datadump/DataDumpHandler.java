@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import static queryimplementation.QueryImplementation.*;
 
 public class DataDumpHandler {
 
+    List<String> queries=new ArrayList<>();
 
     public enum GenerateType{
         DATABASE,
@@ -38,6 +41,11 @@ public class DataDumpHandler {
         String filePath=BASE_DIRECTORY+databaseName+"/"+databaseName+"_metadata.txt";
         //System.out.println( " file path is :"+filePath);
 
+        generateCreateQuery(filePath);
+
+    }
+
+    void generateCreateQuery(String filePath) throws FileNotFoundException {
         StringBuilder queryBuilder=new StringBuilder();
 
 
@@ -48,14 +56,12 @@ public class DataDumpHandler {
             queryBuilder=new StringBuilder();
             queryBuilder.append("CREATE TABLE ");
             String line = reader.nextLine();
-            System.out.println(line);
             String[] line_parts = line.split("\\|");
             String tableName=line_parts[0];
             queryBuilder.append(tableName);
             queryBuilder.append(" (");
             String columnInfo=line_parts[1];
-            System.out.println("tableName "+tableName);
-            System.out.println("columnInfo "+columnInfo);
+
 
             String[] column_parts = columnInfo.split(",");
             String []primaryKeyInfo=new String[3];
@@ -63,7 +69,6 @@ public class DataDumpHandler {
             for (String parts:column_parts) {
                 String []colInfo = parts.split("\\s");
                 int length = colInfo.length;
-                System.out.println(parts+ " length : " + length);
                 if(length==3){
                     primaryKeyInfo=colInfo;
                 }else if(length==5){
@@ -82,17 +87,18 @@ public class DataDumpHandler {
             if(primaryKeyInfo[0]==null && foreignKeyInfo[0]==null){
                 queryBuilder.delete(queryBuilder.length()-2,queryBuilder.length()-1);
                 queryBuilder.append(");");
-                System.out.println(queryBuilder.toString());
+                queries.add(queryBuilder.toString());
+
                 continue;
             }
             else if(foreignKeyInfo[0]==null){
                 queryBuilder.append("PRIMARY KEY (");
                 queryBuilder.append(primaryKeyInfo[0]);
                 queryBuilder.append("));");
-                System.out.println(queryBuilder.toString());
+                queries.add(queryBuilder.toString());
                 continue;
             }
-            System.out.println(queryBuilder.toString());
+
             queryBuilder.append("PRIMARY KEY (");
             queryBuilder.append(primaryKeyInfo[0]);
             queryBuilder.append("), ");
@@ -102,8 +108,8 @@ public class DataDumpHandler {
             queryBuilder.append(foreignKeyInfo[4]);
             queryBuilder.append(");");
 
-            System.out.println(queryBuilder.toString());
-        }
+            queries.add(queryBuilder.toString());
 
+        }
     }
 }

@@ -1,5 +1,7 @@
 package queryimplementation;
 
+import datadump.DataDumpHandler;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -32,7 +34,7 @@ public class QueryImplementation {
                 "USE students;",
 
                 "CREATE TABLE student_details (ID int, Name varchar(25), phone varchar(10), PRIMARY KEY (ID), FOREIGN KEY (name) REFERENCES teachers(name));",
-
+                
                 "INSERT INTO student_details VALUES (1, 'kalpit', '1111111111');",
                 "INSERT INTO student_details VALUES (2, 'vishnu', '2222222222');",
                 "INSERT INTO student_details VALUES (3, 'kavya', '3333333333');",
@@ -58,6 +60,8 @@ public class QueryImplementation {
         for (String q : queries) {
             if(parseQuery(q)) {
                 executeQuery(q);
+                DataDumpHandler ddh=new DataDumpHandler();
+                ddh.exportDump("students");
             } else {
                 System.out.println("INVALID QUERY!");
             }

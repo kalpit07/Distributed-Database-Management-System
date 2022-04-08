@@ -12,7 +12,7 @@ import static queryimplementation.QueryImplementation.*;
 
 public class ParseQuery {
 
-    // VARCHAR LIMIT (1-255) REGEX ------------------> \(([1-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)\)
+    // VARCHAR LIMIT (1-500) REGEX ------------------> \(([1-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)\)
 
     // create database Info;
     public static String REGEX_FOR_QUERY_CREATE_DATABASE = "\\s*create\\s+database\\s+[0-9a-zA-Z_]+\\s*;\\s*";
@@ -44,9 +44,6 @@ public class ParseQuery {
 
     // ---------------------------------------------------------------------------------------------------------------
 
-    public static String BASE_DIRECTORY = "VM/";
-    public static String LOCAL_METADATA_FILE = "Global_Data_Dictionary.txt";
-    public static String GLOBAL_METADATA_FILE = "Local_Metadata.txt";
 
     public static List<String> DATABASES = new ArrayList<>();
     public static List<String> LOCAL_DATABASES = new ArrayList<>();
@@ -113,6 +110,7 @@ public class ParseQuery {
             query = formatQuery(query.trim());
             String[] query_parts = query.split("\\s+");
             String database = query_parts[2];
+            getDatabase();
 
             for (String db : DATABASES) {
                 if (db.equals(database)) {
@@ -148,7 +146,7 @@ public class ParseQuery {
 
                 TABLE_NAME = query.substring(0, firstParenthesis).trim().split("\\s+")[2];
 
-                // Check if table exists or not
+                // Check if table exists or not -----------------------------------------------
                 String metadata_file_path = BASE_DIRECTORY + LOCAL_METADATA_FILE;
                 boolean table_found = false, primary_key=true, foreign_key=true, different_column_names = false;
 
@@ -161,17 +159,20 @@ public class ParseQuery {
                     String[] line_parts = line.split("\\|");
 
                     if (line_parts[0].equals(DATABASE)) {
-                        String[] table_parts = line_parts[1].trim().split(",");
-                        for (String table : table_parts) {
-                            if (table.equals(TABLE_NAME)) {
-                                table_found = true;
-                                break;
+                        if (line_parts.length > 1) {
+
+                            String[] table_parts = line_parts[1].trim().split(",");
+                            for (String table : table_parts) {
+                                if (table.equals(TABLE_NAME)) {
+                                    table_found = true;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
 
-                // Checking all column names are different
+                // Checking all column names are different -----------------------------------------------
                 Set<String> column_names = new HashSet<String>();
                 int column_count = 0;
 
@@ -189,7 +190,7 @@ public class ParseQuery {
                 }
 
 
-                // Checking for primary key
+                // Checking for primary key -----------------------------------------------
                 if (query.contains("primary key")) {
                     primary_key = false;
 
@@ -215,9 +216,10 @@ public class ParseQuery {
 
                 }
 
-                // Checking for foreign key
+                // Checking for foreign key -----------------------------------------------
                 if (query.contains("foreign key")) {
-                    foreign_key = false;
+                    foreign_key = true;
+                    ///////////////////////////////////////////////////////////////////////////
                 }
 
 
@@ -229,11 +231,12 @@ public class ParseQuery {
             System.out.println("No database selected!");
             return false;
         }
+        System.out.println("Not matching");
         return false;
     }
 
     public static boolean parseCreate(String query) throws IOException {
-
+        query = query.toLowerCase();
         String[] query_parts = query.split("\\s+");
 
         if (query_parts.length >= 3) {
@@ -255,11 +258,13 @@ public class ParseQuery {
         }
     }
 
-    public static boolean parseUse(String query) {
+    public static boolean parseUse(String query) throws FileNotFoundException {
         Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_USE).matcher(query);
         if (matchQuery(matcher, "USE")) {
+            query = formatQuery(query.trim());
             String[] query_parts = query.split("\\s+");
             String database = query_parts[1];
+            getDatabase();
 
             for (String db : DATABASES) {
                 if (db.equals(database)) {
@@ -267,6 +272,7 @@ public class ParseQuery {
                 }
             }
         }
+        DATABASE = null;
         return false;
     }
 
@@ -285,33 +291,108 @@ public class ParseQuery {
         return matchQuery(matcher, "UPDATE");
     }
 
-    public static boolean parseDelete(String query) {
+    public static boolean parseDelete(String query) throws FileNotFoundException {
         Matcher matcher = Pattern.compile(REGEX_FOR_QUERY_DELETE).matcher(query);
-        return matchQuery(matcher, "DELETE");
+        if (matchQuery(matcher, "DELETE")) {
+            if (DATABASE != null) {
+                query = formatQuery(query.trim());
+
+                String table_name = query.substring(query.indexOf("from ") + "from ".length());
+                table_name = table_name.substring(0, table_name.indexOf(" where"));
+
+                String column, value;
+                column = query.substring(query.indexOf("where ") + "where ".length());
+                column = column.substring(0, column.indexOf("=")).trim();
+                value = query.substring(query.indexOf("=") + "=".length()).trim();
+
+                boolean table_exist=false, column_exist=false, value_datatype=false;
+
+                // Check whether table exists or not
+                String metadata_file_path = BASE_DIRECTORY + LOCAL_METADATA_FILE;
+
+                File local_metadata = new File(metadata_file_path);
+                Scanner reader = new Scanner(local_metadata);
+
+                // Checking for table_name
+                while(reader.hasNextLine()) {
+                    String line = reader.nextLine();
+                    String[] line_parts = line.split("\\|");
+
+                    if (line_parts[0].equals(DATABASE)) {
+                        if (line_parts.length > 1) {
+
+                            String[] table_parts = line_parts[1].trim().split(",");
+                            for (String table : table_parts) {
+
+                                if (table.equals(TABLE_NAME)) {
+                                    table_exist = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!table_exist) {
+                    return false;
+                }
+
+                // Checking for the column_name
+                metadata_file_path = BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt";
+
+                local_metadata = new File(metadata_file_path);
+                reader = new Scanner(local_metadata);
+
+                // Checking for table_name
+                while(reader.hasNextLine()) {
+                    String line = reader.nextLine();
+                    String[] line_parts = line.split("\\|");
+
+                    if (line_parts[0].equals(table_name)) {
+                        if (line_parts.length > 1) {
+
+                            String[] column_details = line_parts[1].trim().split(",");
+                            for (String column_info : column_details) {
+
+                                if (column_info.equals(TABLE_NAME)) {
+                                    table_exist = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }
+            System.out.println("Database not selected.");
+            return false;
+        }
+        return false;
     }
 
     public static boolean parseQuery(String query) throws IOException {
-
+        query = query.toLowerCase();
         String queryType = query.split("\\s+")[0];
 
         switch (queryType) {
             case "create":
-                System.out.println("CREATE Query");
+//                System.out.println("CREATE Query");
                 return parseCreate(query);
             case "use":
-                System.out.println("USE Query");
+//                System.out.println("USE Query");
                 return parseUse(query);
             case "insert":
-                System.out.println("INSERT Query");
+//                System.out.println("INSERT Query");
                 return parseInsert(query);
             case "select":
-                System.out.println("SELECT Query");
+//                System.out.println("SELECT Query");
                 return parseSelect(query);
             case "update":
-                System.out.println("UPDATE Query");
+//                System.out.println("UPDATE Query");
                 return parseUpdate(query);
             case "delete":
-                System.out.println("DELETE Query");
+//                System.out.println("DELETE Query");
                 return parseDelete(query);
             case "start":
                 // Transaction

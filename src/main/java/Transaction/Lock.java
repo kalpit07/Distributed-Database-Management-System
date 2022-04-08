@@ -1,18 +1,13 @@
-package Transaction;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.*;
-
-/**
-* @author : Kishan Savaliya
-*/
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class Lock {
-
-    public static void acquireLock(String query,String transactionId) throws Exception{
+    public static boolean acquireLock(String query,String transactionId) throws Exception{
         String tableName = getTableName(query);
         int checker=reader(tableName,transactionId);
         // 0 = lock is already taken
@@ -22,16 +17,21 @@ public class Lock {
         switch (checker){
             case 0:
                 System.out.println("lock already taken on table: "+tableName+" by transaction: "+transactionId);
-                break;
+                return true;
             case 1:
                 System.out.println("Cannot provide lock on table: "+tableName+" because taken by: "+transactionId);
-                break;
-            case 4:
+
+                //after 10 sec, it will try again to acquire lock.
+//                TimeUnit.SECONDS.sleep(10);
+//                Lock.acquireLock(query,transactionId);
+                return false;
+            case 4,5:
                 writer(tableName,transactionId);
                 System.out.println("Lock given to Transaction : "+transactionId+" on table: "+tableName);
-                break;
+                return true;
             default:
-                //do Nothing
+                return false;
+            //do Nothing
         }
     }
 
@@ -47,41 +47,50 @@ public class Lock {
         }
     }
 
-    private static void writer(String tableName, String transactionId) throws Exception{
-
-        File file = new File("./src/main/java/Transaction/Transaction.txt");
+    private static void writer(String tableName,String transactionId) throws Exception{
+        System.out.println("I am in writer.");
+        File file = new File("./src/main/java/Transaction.txt");
         if(!file.exists()){
             file.createNewFile();
         }
         FileWriter fileWriter = new FileWriter(file,true);
-        fileWriter.append(transactionId+"|"+tableName+"|"+System.currentTimeMillis()+"\n");
+        fileWriter.append(transactionId+";"+tableName+"\n");
         fileWriter.flush();
         fileWriter.close();
     }
 
     private static int reader(String tableName,String transactionId) throws Exception{
+        System.out.println("I am in reader.");
         File file = new File("./src/main/java/Transaction.txt");
         if(!file.exists()){
             file.createNewFile();
+            return 5;
         }
+
+
         BufferedReader bf = new BufferedReader(new FileReader(file));
         String line ="";
-        int checker = lockChecker(tableName,transactionId,line);
-        while((line = bf.readLine()) != null){
+
+        if((line=bf.readLine()) == null){
+            return 5;
+        }
+
+        do{
+            int checker = lockChecker(tableName,transactionId,line);
             if( checker == 0) {
                 System.out.println("lock is already taken.");
                 return 0;
-            } else if(checker == 1){
+            } else if(checker == 1) {
                 System.out.println("table acquired by another table.");
                 return 1;
             }
-        }
+        } while((line=bf.readLine()) != null);
         return 4;
     }
 
-
     private static int lockChecker(String tableName, String transactionId,String line){
-        String[] transactionWords = line.split("|");
+
+        String[] transactionWords = line.split(";");
         int flag = 0;
         if(transactionWords[1].equalsIgnoreCase(tableName)){
             if(transactionWords[0].equalsIgnoreCase(transactionId)){
@@ -102,4 +111,30 @@ public class Lock {
         }
     }
 
+    public static void releaseLock(String tableName, String transactionId) throws Exception{
+        File inFile = new File("./src/main/java/Transaction.txt");
+        File tempFile = new File(inFile.getAbsolutePath()+".tmp");
+        FileWriter fileWriter = new FileWriter(tempFile,true);
+        if(!inFile.exists()){
+            inFile.createNewFile();
+        }
+        BufferedReader bf = new BufferedReader(new FileReader(inFile));
+        String line ="";
+        boolean lockRemoved = false;
+        while((line = bf.readLine()) != null){
+            int checker = lockChecker(tableName,transactionId,line);
+            if(checker == 0) {
+                lockRemoved = true;
+                continue;
+            }
+            fileWriter.append(line+"\n");
+        }
+        fileWriter.flush();
+        fileWriter.close();
+        tempFile.renameTo(inFile);
+
+        if(lockRemoved){
+            System.out.println("All lock removed.");
+        }
+    }
 }

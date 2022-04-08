@@ -13,6 +13,7 @@ import static queryimplementation.QueryImplementation.*;
 public class DataDumpHandler {
 
     List<String> queries=new ArrayList<>();
+    public static String VM_INSTANCE = "DUMP/";
 
     public enum GenerateType{
         DATABASE,
@@ -24,26 +25,73 @@ public class DataDumpHandler {
 
     }
 
-    public void recordGenerateQuery(GenerateType generateType, String entityName, String query, String path) throws IOException {
-        switch (generateType){
-            case DATABASE -> System.out.println("Database is being generated");
-            case TABLE -> {
-                System.out.println("Table is being generated" + entityName + query);
-                FileWriter fw_local = new FileWriter(path, true);
-                fw_local.write(entityName+"_create" + "|" + query + "\n");
+    public void writeGenerateQuery( String path, String pathFile) throws IOException {
+
+        File theDir = new File(path);
+
+        System.out.println(path);
+        if (!theDir.exists()) {
+
+            boolean result = false;
+
+            try {
+
+                theDir.mkdirs();
+                FileWriter fw_local = new FileWriter(pathFile, true);
+                System.out.println(queries.size());
+                for (String query:queries) {
+
+                    fw_local.write(query);
+                }
+
                 fw_local.close();
+                result = true;
+            } catch (SecurityException se) {
+                // handle it
+                System.out.println(se.getMessage());
             }
+            if (result) {
+                System.out.println("Folder created");
+            }
+        } else if (theDir.exists()) {
+            FileWriter fw_local = new FileWriter(pathFile, true);
+            System.out.println(queries.size());
+            for (String query:queries) {
+
+                fw_local.write(query);
+            }
+
+            fw_local.close();
+            System.out.println("Folder exist");
+        }
+
+        FileWriter fw_local = new FileWriter(path, true);
+        for (String query:queries) {
+
+            fw_local.write(query);
+        }
+
+        fw_local.close();
+    }
+
+
+    public void exportDump(String databaseName) throws IOException {
+        String filePath=BASE_DIRECTORY+databaseName+"/"+databaseName+"_metadata.txt";
+        generateCreateQuery(filePath);
+        //writeGenerateQuery(BASE_DIRECTORY+VM_INSTANCE+databaseName,BASE_DIRECTORY+VM_INSTANCE+databaseName+"/dump.txt");
+        //generateInsertQuery( filePath);
+    }
+
+    void generateInsertQuery(String filePath) throws FileNotFoundException {
+        File metadata = new File(filePath);
+        Scanner reader = new Scanner(metadata);
+        while(reader.hasNextLine()){
+            String line = reader.nextLine();
+            String[] line_parts = line.split("\\|");
+            String tableName=line_parts[0];
         }
     }
 
-
-    public void exportDump(String databaseName) throws FileNotFoundException {
-        String filePath=BASE_DIRECTORY+databaseName+"/"+databaseName+"_metadata.txt";
-        //System.out.println( " file path is :"+filePath);
-
-        generateCreateQuery(filePath);
-
-    }
 
     void generateCreateQuery(String filePath) throws FileNotFoundException {
         StringBuilder queryBuilder=new StringBuilder();

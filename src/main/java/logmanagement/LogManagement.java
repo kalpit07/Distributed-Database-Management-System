@@ -17,35 +17,35 @@ public class LogManagement {
 
 
     public static FileWriter queryLogger(String username, String query) throws Exception {
-        FileWriter queryFile = new FileWriter("/logFiles/queryLog.txt", true);
+        FileWriter queryFile = new FileWriter("VM/logFiles/queryLog.txt", true);
         queryFile.append(getTime() + " : " + username + " : " + query + "\n");
         queryFile.close();
         return queryFile;
     }
 
     public void eventLogger(String database) throws Exception {
-        FileWriter fileWriter = new FileWriter("/logFiles/eventLog.txt", true);
+        FileWriter fileWriter = new FileWriter("VM/logFiles/eventLog.txt", true);
         fileWriter.append("Database has been changed to : " + database + "\n");
         fileWriter.close();
     }
 
     public static void crashLogger(Exception exp) throws IOException {
-        FileWriter fileWriter = new FileWriter("/logFiles/eventLog.txt", true);
+        FileWriter fileWriter = new FileWriter("VM/logFiles/eventLog.txt", true);
         fileWriter.append("Crash Occurred: " + exp + "\n");
         fileWriter.close();
 
     }
 
     public void transactionLogger(String msg) throws Exception {
-        FileWriter fileWriter = new FileWriter("/logFiles/eventLog.txt", true);
+        FileWriter fileWriter = new FileWriter("VM/logFiles/eventLog.txt", true);
         fileWriter.append(msg + "\n");
         fileWriter.close();
     }
 
     public static void generalLog(String database, Long execTime) throws Exception {
 
-        FileWriter fileWriter = new FileWriter("/logFiles/generalLog.txt", true);
-        String dirPath="/databases/" + database + "/";
+        FileWriter fileWriter = new FileWriter("VM/logFiles/generalLog.txt", true);
+        String dirPath="VM/" + database + "/";
         File fileIterate= new File(dirPath);
         int count=0;
         String str[] = fileIterate.list();

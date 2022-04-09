@@ -1,17 +1,19 @@
 package queryimplementation;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import de.vandermeer.asciitable.AsciiTable;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
-import static queryimplementation.ParseQuery.*;
 import static queryimplementation.QueryImplementation.*;
 
 public class ExecuteQuery {
 
-    public static void executeCreateDatabase(String query) throws IOException {
+    ParseQuery pq = new ParseQuery();
+
+    public void executeCreateDatabase(String query) throws IOException {
         String[] query_parts = query.split("\\s+");
         String database = query_parts[2];
 
@@ -30,7 +32,7 @@ public class ExecuteQuery {
         fw_local.close();
     }
 
-    public static void executeCreateTable(String query) throws IOException {
+    public void executeCreateTable(String query) throws IOException {
 
         int firstParenthesis=0, lastParenthesis=0;
         for (int index=0; index<query.length(); index++) {
@@ -46,7 +48,7 @@ public class ExecuteQuery {
             }
         }
 
-        TABLE_NAME = query.substring(0, firstParenthesis).trim().split("\\s+")[2];
+        TABLE_NAME = query.substring(0, firstParenthesis).trim().split("\\s+")[2].trim();
 
 
         // Getting column names and data types
@@ -72,7 +74,13 @@ public class ExecuteQuery {
                 foreign_key = s.substring(s.indexOf("(") + "(".length());
                 foreign_key = foreign_key.substring(0, foreign_key.indexOf(")")).trim();
 
-                fk_details += s.substring(s.indexOf("references"));
+                fk_details += "REFERENCES" + s.substring(s.indexOf("references")+"references".length());
+                String temp = fk_details;
+                temp = temp.substring(temp.indexOf("REFERENCES ") + "REFERENCES ".length());
+                temp = temp.replaceAll("\\s+", "");
+
+                fk_details = fk_details.substring(0, fk_details.indexOf("REFERENCES ") + "REFERENCES ".length()).trim();
+                fk_details += " " + temp;
 
 
             }
@@ -94,7 +102,6 @@ public class ExecuteQuery {
         metadata_header = metadata_header.substring(0, metadata_header.length()-1);
         header = header.substring(0, header.length()-1) + "\n";
 
-
         // add to local metadata files
         String meta_data_file_name = BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt";
         FileWriter fw_local = new FileWriter(meta_data_file_name, true);
@@ -114,7 +121,7 @@ public class ExecuteQuery {
 
             if (line_parts[0].equals(DATABASE)) {
                 if (line_parts.length > 1) {
-                    line = line.substring(0, line.length()-1);
+                    line = line.substring(0, line.length());
                     line += "," + TABLE_NAME + "\n";
                 } else {
                     line = DATABASE + "|" + TABLE_NAME + "\n";
@@ -141,7 +148,7 @@ public class ExecuteQuery {
         t.close();
     }
 
-    public static void executeCreate(String query) throws IOException {
+    public void executeCreate(String query) throws IOException {
 
         String[] query_parts = query.split("\\s+");
         String createWhat = query_parts[1];
@@ -155,14 +162,14 @@ public class ExecuteQuery {
         }
     }
 
-    public static void executeUse(String query) {
+    public void executeUse(String query) {
         String[] queryParts = query.split("\\s+");
         String database = queryParts[1];
 
         DATABASE = database;
     }
 
-    public static void executeInsert(String query) throws IOException {
+    public void executeInsert(String query) throws IOException {
         // get table_name
         String[] query_parts = query.split("\\s+");
         TABLE_NAME = query_parts[2];
@@ -192,7 +199,7 @@ public class ExecuteQuery {
 
     }
 
-    public static void executeSelect(String query) throws FileNotFoundException {
+    public void executeSelect(String query) throws FileNotFoundException {
 
         String[] query_parts = query.trim().split("\\s+");
 
@@ -242,6 +249,12 @@ public class ExecuteQuery {
                 }
 
                 data.add(header);
+                System.out.println("HEADER :: " + header);
+                System.out.println("VALUE :: " + value);
+                if (value.contains("'")) {
+                    value = value.trim();
+                    value = value.substring(1, value.length()-1).trim();
+                }
                 File file = new File(file_path);
                 Scanner scanner = new Scanner(file);
                 while (scanner.hasNextLine()) {
@@ -354,14 +367,292 @@ public class ExecuteQuery {
 
         }
         System.out.println(data);
+        AsciiTable at = new AsciiTable();
+        boolean is_header = true;
+        System.out.println(data.size());
+
+        for (String d : data) {
+            if(is_header) {
+                at.addRule();
+                at.addRow(d.split("\\|")).setPaddingLeft(2);
+                at.addRule();
+                is_header = false;
+            } else {
+                if (data.size() > 1) {
+                    at.addRow(d.split("\\|")).setPaddingLeft(2);
+                }
+            }
+        }
+        at.addRule();
+        String render_table = at.render();
+        System.out.println("\n");
+        System.out.println(query + ";");
+        System.out.println(render_table);
+        System.out.println("\n");
     }
 
-    public static void executeUpdate(String query) {}
+    public void executeUpdate(String query) {
+        String[] querySplit = query.split("\\s+");
+        TABLE_NAME = querySplit[1].trim();
+        String tablePath = BASE_DIRECTORY + DATABASE + "/" + TABLE_NAME + ".txt";
 
-    public static void executeDelete(String query) {}
+        int indexOfSet = query.indexOf("set");
+        int indexOfWhere = query.indexOf("where");
 
-    public static void executeQuery(String query) throws IOException {
-        query = formatQuery(query.toLowerCase().trim());
+        String columnAndValue = query.substring(indexOfSet + 4, indexOfWhere - 1);
+        columnAndValue = columnAndValue.trim();
+
+        String condition = querySplit[querySplit.length - 1];
+        condition = condition.substring(0, condition.length());
+
+        String[] temp = columnAndValue.split("=");
+        String updateColumn = temp[0].trim();
+        String updateValue = temp[1].trim();
+        if(updateValue.startsWith("'") || updateValue.startsWith("\""))
+        {
+            updateValue = updateValue.substring(1, updateValue.length() - 1);
+        }
+
+        String[] conditionBreak = condition.split("=");
+        String conditionColumn = conditionBreak[0];
+        String conditionValue = conditionBreak[1];
+        if(conditionValue.startsWith("'") || conditionValue.startsWith("\""))
+        {
+            conditionValue = conditionValue.substring(1, conditionValue.length() - 1);
+        }
+
+        boolean answer = true;
+
+        try
+        {
+            String line = "";
+            File metadata = new File(BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt");;
+            BufferedReader checkForUpdateType = new BufferedReader(new FileReader(metadata));
+            while((line = checkForUpdateType.readLine()) != null)
+            {
+                String[] allLines = line.split("\n");
+                for(String everyLine : allLines)
+                {
+                    String[] values = everyLine.split("\\|");
+                    if(values[0].equals(TABLE_NAME))
+                    {
+                        String columnsAndTypes = values[1];
+                        String[] types = columnsAndTypes.split(",");
+                        for(int j = 0; j < types.length; j++)
+                        {
+                            if(types[j].startsWith(updateColumn))
+                            {
+                                String[] isPkOrFk = types[j].split(" ");
+                                if(isPkOrFk.length == 3 || isPkOrFk.length == 5)
+                                {
+                                    if(isPkOrFk[2].equals("PRIMARY_KEY"))
+                                    {
+                                        System.out.println("You are trying to update a primary key which is not possible.");
+                                        System.out.println("The query cannot be executed.");
+                                        answer = false;
+                                    }
+                                    else if(isPkOrFk[2].equals("FOREIGN_KEY"))
+                                    {
+                                        System.out.println("You are trying to update a foreign key which is not possible.");
+                                        System.out.println("The query cannot be executed");
+                                        answer = false;
+                                    }
+                                }
+
+                                else if(isPkOrFk.length == 2)
+                                {
+                                    answer = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            checkForUpdateType.close();
+
+            if(answer)
+            {
+                String overWrite = "";
+                String tableRow = "";
+                int indexOfConditionColumn = -1;
+                int indexOfUpdateColumn = -1;
+                File table = new File(tablePath);
+                BufferedReader updating = new BufferedReader(new FileReader(table));
+                int count = 0;
+                String tableHeader = updating.readLine();
+                overWrite += tableHeader;
+                overWrite += "\n";
+                String[] headerValues = tableHeader.split("\\|");
+                for(int x = 0; x < headerValues.length; x++)
+                {
+                    if(headerValues[x].equals(conditionColumn))
+                    {
+                        indexOfConditionColumn = x;
+                    }
+
+                    if(headerValues[x].equals(updateColumn))
+                    {
+                        indexOfUpdateColumn = x;
+                    }
+                }
+
+                while((tableRow = updating.readLine()) != null)
+                {
+                    String[] rowValues = tableRow.split("\\|");
+                    if(rowValues[indexOfConditionColumn].equals(conditionValue))
+                    {
+                        rowValues[indexOfUpdateColumn] = updateValue;
+                    }
+
+                    for(int x = 0; x < rowValues.length; x++)
+                    {
+                        if(x == rowValues.length - 1)
+                        {
+                            overWrite += rowValues[x];
+                        }
+                        else
+                        {
+                            overWrite += rowValues[x];
+                            overWrite += "|";
+                        }
+                    }
+                    overWrite += "\n";
+                }
+
+                updating.close();
+
+                FileWriter writer = new FileWriter(tablePath, false);
+                writer.write(overWrite);
+                writer.close();
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void executeDelete(String query) {
+        String[] querySplit = query.split("\\s+");
+        String TABLE_NAME = querySplit[2].trim();
+        String tablePath = BASE_DIRECTORY + DATABASE + "/" + TABLE_NAME + ".txt";
+
+        int indexOfWhere = query.indexOf("where");
+        String condition = querySplit[querySplit.length - 1];
+        condition = condition.substring(0, condition.length());
+        String[] conditionBreak = condition.split("=");
+        String conditionColumn = conditionBreak[0];
+        String conditionValue = conditionBreak[1];
+        if(conditionValue.startsWith("'") || conditionValue.startsWith("\""))
+        {
+            conditionValue = conditionValue.substring(1, conditionValue.length() - 1);
+        }
+
+        boolean answer = true;
+
+        try
+        {
+            String line = "";
+            File metadata = new File(BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt");
+            String wholeFile = Files.readString(Path.of(BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt"));
+            BufferedReader checkForDeleteType = new BufferedReader(new FileReader(metadata));
+            while((line = checkForDeleteType.readLine()) != null)
+            {
+                String[] allLines = line.split("\n");
+                for(String everyLine : allLines)
+                {
+                    String[] values = everyLine.split("\\|");
+                    if(values[0].equals(TABLE_NAME))
+                    {
+                        String pkColumn = "";
+                        String columnsAndTypes = values[1];
+                        String[] types = columnsAndTypes.split(",");
+                        for(int j = 0; j < types.length; j++)
+                        {
+                            String[] pkwords = types[j].split(" ");
+                            if(pkwords.length == 3)
+                            {
+                                pkColumn = pkwords[0];
+                            }
+
+                            if(types[j].startsWith(conditionColumn))
+                            {
+                                String pattern = "REFERENCES " + TABLE_NAME + "(" + pkColumn + ")";
+                                if(wholeFile.contains(pattern))
+                                {
+                                    System.out.println("You are trying to delete a row which has foreign key contraint. " +
+                                            "Please delete the foreign key first before deleting primary key");
+                                    answer = false;
+                                }
+                                else
+                                {
+                                    answer = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            checkForDeleteType.close();
+
+            if(answer)
+            {
+                String overWrite = "";
+                String tableRow = "";
+                int indexOfConditionColumn = -1;
+                File table = new File(tablePath);
+                BufferedReader deleting = new BufferedReader(new FileReader(table));
+                int count = 0;
+                String tableHeader = deleting.readLine();
+                overWrite += tableHeader;
+                overWrite += "\n";
+                String[] headerValues = tableHeader.split("\\|");
+                for(int x = 0; x < headerValues.length; x++)
+                {
+                    if(headerValues[x].equals(conditionColumn))
+                    {
+                        indexOfConditionColumn = x;
+                    }
+                }
+
+                while((tableRow = deleting.readLine()) != null)
+                {
+                    String[] rowValues = tableRow.split("\\|");
+                    if(!rowValues[indexOfConditionColumn].equals(conditionValue))
+                    {
+                        for(int x = 0; x < rowValues.length; x++)
+                        {
+                            if(x == rowValues.length - 1)
+                            {
+                                overWrite += rowValues[x];
+                            }
+                            else
+                            {
+                                overWrite += rowValues[x];
+                                overWrite += "|";
+                            }
+                        }
+                        overWrite += "\n";
+                    }
+                }
+
+                deleting.close();
+
+                FileWriter writer = new FileWriter(tablePath, false);
+                writer.write(overWrite);
+                writer.close();
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void executeQuery(String query) throws IOException {
+        query = pq.formatQuery(query.toLowerCase().trim());
 
         String queryType = query.split("\\s+")[0];
 

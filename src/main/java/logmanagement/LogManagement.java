@@ -31,12 +31,12 @@ public class LogManagement
         }
     }
 
-    public void eventLog(String username, String database, String tableName)
+    public void eventLog(String username, String database, String tableName, String query)
     {
         try
         {
             FileWriter fileWriter = new FileWriter(VIRTUAL_MACHINE + "/Logs/Event_Log.txt", true);
-            fileWriter.append(getTime() +" | "+ username +" | "+ database + " | " + tableName + "\n");
+            fileWriter.append(getTime() +" | "+ username +" | "+ database + " | " + tableName + " | "  + query + "\n");
             fileWriter.close();
         }
         catch (Exception e)

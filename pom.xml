@@ -18,6 +18,11 @@
             <artifactId>jsch</artifactId>
             <version>0.1.55</version>
         </dependency>
+        <dependency>
+            <groupId>de.vandermeer</groupId>
+            <artifactId>asciitable</artifactId>
+            <version>0.3.2</version>
+        </dependency>
     </dependencies>
 
 </project>

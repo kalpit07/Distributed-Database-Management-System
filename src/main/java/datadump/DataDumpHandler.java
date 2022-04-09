@@ -77,18 +77,46 @@ public class DataDumpHandler {
 
     public void exportDump(String databaseName) throws IOException {
         String filePath=BASE_DIRECTORY+databaseName+"/"+databaseName+"_metadata.txt";
-        generateCreateQuery(filePath);
+        //generateCreateQuery(filePath);
         //writeGenerateQuery(BASE_DIRECTORY+VM_INSTANCE+databaseName,BASE_DIRECTORY+VM_INSTANCE+databaseName+"/dump.txt");
-        //generateInsertQuery( filePath);
+        generateInsertQuery( filePath,databaseName);
     }
 
-    void generateInsertQuery(String filePath) throws FileNotFoundException {
+    void generateInsertQuery(String filePath, String databaseName) throws FileNotFoundException {
         File metadata = new File(filePath);
         Scanner reader = new Scanner(metadata);
         while(reader.hasNextLine()){
             String line = reader.nextLine();
             String[] line_parts = line.split("\\|");
             String tableName=line_parts[0];
+            String tablePath=BASE_DIRECTORY+databaseName+"/"+tableName+".txt";
+            //System.out.println(tablePath);
+
+            File table = new File(tablePath);
+            Scanner tableReader = new Scanner(table);
+            boolean header=true;
+            StringBuilder dataBuilder=new StringBuilder();
+            while(tableReader.hasNextLine()){
+                String currLine = tableReader.nextLine();
+                if(header){
+                    header=false;
+                    continue;
+                }
+                dataBuilder.append("INSERT INTO ");
+                dataBuilder.append(tableName);
+                dataBuilder.append(" VALUES (");
+
+                String []dataArr=currLine.split("\\|");
+                for(int i=0; i<dataArr.length;i++){
+                    dataBuilder.append(dataArr[i]);
+                    dataBuilder.append(",");
+                }
+
+                dataBuilder.delete(dataBuilder.length()-2,dataBuilder.length()-1);
+                dataBuilder.append(");");
+                
+            }
+            System.out.println(dataBuilder.toString());
         }
     }
 

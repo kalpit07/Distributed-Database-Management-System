@@ -12,7 +12,9 @@ import static queryimplementation.QueryImplementation.*;
 
 public class DataDumpHandler {
 
-    List<String> queries=new ArrayList<>();
+    List<String> createQueries=new ArrayList<>();
+    List<String> dataDump=new ArrayList<>();
+
     public static String VM_INSTANCE = "DUMP/";
 
     public enum GenerateType{
@@ -25,7 +27,7 @@ public class DataDumpHandler {
 
     }
 
-    public void writeGenerateQuery( String path, String pathFile) throws IOException {
+    public void writeGenerateQuery( String path, String pathFile, List<String> queries) throws IOException {
 
         File theDir = new File(path);
 
@@ -41,7 +43,7 @@ public class DataDumpHandler {
                 System.out.println(queries.size());
                 for (String query:queries) {
 
-                    fw_local.write(query);
+                    fw_local.write(query + "\n");
                 }
 
                 fw_local.close();
@@ -64,22 +66,17 @@ public class DataDumpHandler {
             fw_local.close();
             System.out.println("Folder exist");
         }
-
-        FileWriter fw_local = new FileWriter(path, true);
-        for (String query:queries) {
-
-            fw_local.write(query);
-        }
-
-        fw_local.close();
     }
 
 
     public void exportDump(String databaseName) throws IOException {
+        System.out.println("============================Hello=========================");
         String filePath=BASE_DIRECTORY+databaseName+"/"+databaseName+"_metadata.txt";
-        //generateCreateQuery(filePath);
-        //writeGenerateQuery(BASE_DIRECTORY+VM_INSTANCE+databaseName,BASE_DIRECTORY+VM_INSTANCE+databaseName+"/dump.txt");
+        generateCreateQuery(filePath);
         generateInsertQuery( filePath,databaseName);
+        writeGenerateQuery(BASE_DIRECTORY+VM_INSTANCE+databaseName,BASE_DIRECTORY+VM_INSTANCE+databaseName+"/dump.txt",createQueries);
+        writeGenerateQuery(BASE_DIRECTORY+VM_INSTANCE+databaseName,BASE_DIRECTORY+VM_INSTANCE+databaseName+"/dump.txt",dataDump);
+
     }
 
     void generateInsertQuery(String filePath, String databaseName) throws FileNotFoundException {
@@ -112,10 +109,13 @@ public class DataDumpHandler {
                     dataBuilder.append(",");
                 }
 
-                dataBuilder.delete(dataBuilder.length()-2,dataBuilder.length()-1);
+
+                dataBuilder.deleteCharAt(dataBuilder.length()-1);
+
                 dataBuilder.append(");");
 
             }
+            dataDump.add(dataBuilder.toString());
             System.out.println(dataBuilder.toString());
         }
     }
@@ -163,7 +163,7 @@ public class DataDumpHandler {
             if(primaryKeyInfo[0]==null && foreignKeyInfo[0]==null){
                 queryBuilder.delete(queryBuilder.length()-2,queryBuilder.length()-1);
                 queryBuilder.append(");");
-                queries.add(queryBuilder.toString());
+                createQueries.add(queryBuilder.toString());
 
                 continue;
             }
@@ -171,7 +171,7 @@ public class DataDumpHandler {
                 queryBuilder.append("PRIMARY KEY (");
                 queryBuilder.append(primaryKeyInfo[0]);
                 queryBuilder.append("));");
-                queries.add(queryBuilder.toString());
+                createQueries.add(queryBuilder.toString());
                 continue;
             }
 
@@ -184,7 +184,7 @@ public class DataDumpHandler {
             queryBuilder.append(foreignKeyInfo[4]);
             queryBuilder.append(");");
 
-            queries.add(queryBuilder.toString());
+            createQueries.add(queryBuilder.toString());
 
         }
     }

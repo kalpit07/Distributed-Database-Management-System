@@ -60,13 +60,11 @@ public class QueryImplementation {
         for (String q : queries) {
             if(parseQuery(q)) {
                 executeQuery(q);
-                DataDumpHandler ddh=new DataDumpHandler();
-                ddh.exportDump("students");
+
             } else {
                 System.out.println("INVALID QUERY!");
             }
         }
-
 
     }
 }

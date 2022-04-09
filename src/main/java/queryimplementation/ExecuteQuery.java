@@ -2,10 +2,15 @@ package queryimplementation;
 
 import de.vandermeer.asciitable.AsciiTable;
 
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+
+
+import static DDBMS.D2_DB.BASE_DIRECTORY;
+import static DDBMS.D2_DB.VIRTUAL_MACHINE;
 
 import static queryimplementation.QueryImplementation.*;
 
@@ -25,7 +30,9 @@ public class ExecuteQuery {
         FileWriter fw_global = new FileWriter(BASE_DIRECTORY + GLOBAL_METADATA_FILE, true);
         FileWriter fw_local = new FileWriter(BASE_DIRECTORY + LOCAL_METADATA_FILE, true);
 
-        fw_global.write(database + "|" + VM_INSTANCE + "\n");
+
+        fw_global.write(database + "|" + VIRTUAL_MACHINE + "\n");
+
         fw_local.write(database + "|\n");
 
         fw_global.close();

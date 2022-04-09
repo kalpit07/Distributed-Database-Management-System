@@ -1,1 +1,0 @@
-students|id int PRIMARY_KEY,name varchar(500),banner varchar(500),program varchar(500)

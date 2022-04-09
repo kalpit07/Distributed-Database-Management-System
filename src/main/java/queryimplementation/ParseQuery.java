@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static DDBMS.D2_DB.BASE_DIRECTORY;
 import static queryimplementation.ExecuteQuery.*;
 import static queryimplementation.QueryImplementation.*;
 

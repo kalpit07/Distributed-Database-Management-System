@@ -1,13 +1,16 @@
 package userinterface;
-import java.io.IOException;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Scanner;
+import DDBMS.D2_DB;
+import logmanagement.LogManagement;
 
 public class Registration
 {
-    public static void registerUser()
+    LogManagement logger = new LogManagement();
+
+    public void registerUser()
     {
         Scanner sc = new Scanner(System.in);
         boolean isThere;
@@ -36,7 +39,8 @@ public class Registration
                 System.out.print("Please enter answer to your security question: ");
                 String securityAnswer = sc.nextLine();
 
-                FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/User_Profile.txt", true);
+                FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/" +
+                        D2_DB.VIRTUAL_MACHINE + "/User_Profile.txt", true);
                 writer.write(hashedUsername + "|" + hashedPassword + "|" + securityQuestion + "|" + securityAnswer + "\n");
                 writer.close();
                 System.out.println("User registered successfully.");
@@ -46,26 +50,35 @@ public class Registration
         catch (Exception e)
         {
             e.printStackTrace();
+            logger.crashReport(e);
         }
     }
 
-    public static boolean checkUser(String hashedUsername) throws IOException
+    public boolean checkUser(String hashedUsername)
     {
-        String line = "";
         boolean userAlreadyThere = false;
-        BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir") +
-                "/User_Profile.txt"));
-        while((line = br.readLine()) != null)
+        try
         {
-            String[] allLines = line.split("\n");
-            for(String everyLine : allLines)
+            String line;
+            BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir") +
+                    "/" + D2_DB.VIRTUAL_MACHINE + "/User_Profile.txt"));
+            while((line = br.readLine()) != null)
             {
-                String[] values = everyLine.split("\\|");
-                if(values[0].equals(hashedUsername))
+                String[] allLines = line.split("\n");
+                for(String everyLine : allLines)
                 {
-                    return true;
+                    String[] values = everyLine.split("\\|");
+                    if(values[0].equals(hashedUsername))
+                    {
+                        userAlreadyThere = true;
+                    }
                 }
             }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            logger.crashReport(e);
         }
         return userAlreadyThere;
     }

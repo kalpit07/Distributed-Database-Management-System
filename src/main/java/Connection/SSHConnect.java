@@ -1,9 +1,7 @@
 package Connection;
-
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-
 import java.io.ByteArrayOutputStream;
 
 public class SSHConnect {

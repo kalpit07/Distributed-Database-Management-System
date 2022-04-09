@@ -1,4 +1,6 @@
 package userinterface;
+import logmanagement.LogManagement;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
@@ -6,6 +8,7 @@ import java.math.BigInteger;
 public class Hash
 {
     static MessageDigest md;
+    LogManagement logger = new LogManagement();
 
     static
     {

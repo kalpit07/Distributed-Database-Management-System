@@ -1,4 +1,6 @@
 package userinterface;
+import DDBMS.D2_DB;
+import logmanagement.LogManagement;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Scanner;
@@ -6,14 +8,18 @@ import java.util.Scanner;
 public class Login
 {
     static Scanner sc = new Scanner(System.in);
-    public static void loginUser()
+    Menu menu = new Menu();
+    Registration register = new Registration();
+    LogManagement logger = new LogManagement();
+
+    public void loginUser()
     {
         try
         {
             System.out.print("Please enter your username: ");
             String realUserName = sc.nextLine();
             String toCheckUser = Hash.userID(realUserName);
-            if (Registration.checkUser(toCheckUser))
+            if (register.checkUser(toCheckUser))
             {
                 System.out.println("User exists in the database.");
                 System.out.print("Please enter your password: ");
@@ -25,7 +31,7 @@ public class Login
                     if (checkSecAns(toCheckUser))
                     {
                         System.out.println("User logged in successfully!");
-                        Menu.loginMenu(toCheckUser);
+                        menu.loginMenu(realUserName);
                     }
                     else
                     {
@@ -45,17 +51,18 @@ public class Login
         catch (Exception e)
         {
             e.printStackTrace();
+            logger.crashReport(e);
         }
     }
 
-    public static boolean validateUser(String username, String password)
+    public boolean validateUser(String username, String password)
     {
         boolean isValid = false;
         try
         {
             String eachLine = "";
             BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir") +
-                    "/User_Profile.txt"));
+                    "/" + D2_DB.VIRTUAL_MACHINE + "/User_Profile.txt"));
             while((eachLine = br.readLine()) != null)
             {
                 String[] allLines = eachLine.split("\n");
@@ -75,18 +82,19 @@ public class Login
         catch (Exception e)
         {
             e.printStackTrace();
+            logger.crashReport(e);
         }
         return isValid;
     }
 
-    public static boolean checkSecAns(String username)
+    public boolean checkSecAns(String username)
     {
         boolean isValid = false;
         String eachLine = "";
         try
         {
             BufferedReader br = new BufferedReader(new FileReader(System.getProperty("user.dir") +
-                    "/User_Profile.txt"));
+                    "/" + D2_DB.VIRTUAL_MACHINE + "/User_Profile.txt"));
             while((eachLine = br.readLine()) != null)
             {
                 String[] allLines = eachLine.split("\n");
@@ -109,6 +117,7 @@ public class Login
         catch (Exception e)
         {
             e.printStackTrace();
+            logger.crashReport(e);
         }
         return isValid;
     }

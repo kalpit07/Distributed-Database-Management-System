@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
 public class SSHConnect {
 
     public static void main(String []args) throws Exception {
-        listFolderStructure("gcpKey", "", "34.136.127.213", 22, "java -jar JARGenerator.jar hello");
+        listFolderStructure("gcpKey", "", "34.122.248.27", 22, "java -jar JARGenerator.jar hello");
         //listFolderStructure("gcpKey", "", "34.136.127.213", 22, "dir");
     }
 

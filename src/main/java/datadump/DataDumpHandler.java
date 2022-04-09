@@ -114,7 +114,7 @@ public class DataDumpHandler {
 
                 dataBuilder.delete(dataBuilder.length()-2,dataBuilder.length()-1);
                 dataBuilder.append(");");
-                
+
             }
             System.out.println(dataBuilder.toString());
         }

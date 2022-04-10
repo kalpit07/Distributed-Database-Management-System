@@ -25,8 +25,8 @@ public class Menu
                 System.out.println();
                 System.out.println("Please choose one of the following options:");
                 System.out.println("1. REGISTER NEW USER");
-                System.out.println("2. LOGIN USER");
-                System.out.println("3. EXIT");
+                System.out.println("2. USER LOGIN");
+                System.out.println("3. LOGOUT");
                 Scanner sc = new Scanner(System.in);
                 int option = sc.nextInt();
 
@@ -71,11 +71,11 @@ public class Menu
         {
             System.out.println("\nPlease choose one of the following options:");
             System.out.println("1. WRITE QUERIES");
-            System.out.println("2. EXPORT");
+            System.out.println("2. EXPORT SQL DUMP");
             System.out.println("3. DATA MODEL");
             System.out.println("4. ANALYTICS");
             System.out.println("5. SHOW LOGS");
-            System.out.println("6. EXIT");
+            System.out.println("6. LOGOUT");
             System.out.println();
             System.out.print("Your choice : ");
             Scanner sc1 = new Scanner(System.in);

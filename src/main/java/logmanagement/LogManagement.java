@@ -76,6 +76,21 @@ public class LogManagement
         }
     }
 
+    public void transactionTime(float time)
+    {
+        try
+        {
+            FileWriter fileWriter = new FileWriter(VIRTUAL_MACHINE + "/Logs/Event_Log.txt", true);
+            fileWriter.append("Total time taken for transaction execution:" + time + "\n");
+            fileWriter.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            crashReport(e);
+        }
+    }
+
     public void generalLog(String username,String database, Long execTime)
     {
         try
@@ -98,7 +113,7 @@ public class LogManagement
                         noOFLines++;
                 }
             }
-            fileWriter.append("Execution time: " + execTime + " | " + " User: "+ username + " | " + " Database: " + database + " has " + count + " tables with " + noOFLines + " records " + "\n");
+            fileWriter.append("Execution time: " + execTime + " | " + " User: "+ username + " | " + " Database: " + database + " has " + count + " tables with " + (noOFLines - count) + " records " + "\n");
             fileWriter.close();
         }
         catch (Exception e)

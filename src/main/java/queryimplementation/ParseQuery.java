@@ -122,7 +122,7 @@ public class ParseQuery
                     if (db.equals(database))
                     {
                         System.out.println("Database already exists!");
-                        answer = false;
+                        return false;
                     }
                 }
                 answer = true;
@@ -241,7 +241,6 @@ public class ParseQuery
                     // Checking for foreign key -----------------------------------------------
                     if (query.contains("foreign key")) {
                         foreign_key = true;
-                        System.out.println(query);
                         String f_string = query.substring(query.indexOf("foreign key") + "foreign key".length()).trim();
                         f_string = f_string.replaceAll("\\s+", "");
 
@@ -519,7 +518,6 @@ public class ParseQuery
                     // Unique primary key
                     if (column_string.toLowerCase().contains("primary_key")) {
                         column_string = column_string.trim().toLowerCase();
-                        System.out.println(column_string);
 
                         int c_number_check = -1;
                         int final_c_number = 0;
@@ -537,9 +535,12 @@ public class ParseQuery
                                 values = values.substring(values.indexOf("(") + "(".length(), values.indexOf(")"));
 
                                 String value = values.trim().split(",")[final_c_number].trim();
+                                if (value.contains("'")) {
+                                    value = value.trim();
+                                    value = value.substring(1, value.length()-1);
+                                }
 
                                 String file_p = BASE_DIRECTORY + DATABASE + "/" + TABLE_NAME + ".txt";
-                                System.out.println(file_p);
                                 File fl = new File(file_p);
                                 Scanner scanner = new Scanner(fl);
                                 while (scanner.hasNextLine()) {
@@ -657,7 +658,6 @@ public class ParseQuery
                                 }
 
                                 if (!f_key_value) {
-                                    System.out.println(query);
                                     System.out.println("Value in reference table does not exist!");
                                     return false;
                                 }
@@ -767,7 +767,6 @@ public class ParseQuery
 
                         // Check for * or column names
                         if (!query.contains("*")) {
-                            System.out.println("HEHEHEHEHEHEHEHEHEHE");
                             // specific columns
                             String specific_cols = query.substring(query.indexOf("select") + "select".length(), query.indexOf("from")).trim();
                             String[] specific_columns = specific_cols.split(",");
@@ -1093,12 +1092,14 @@ public class ParseQuery
                     System.out.println("Invalid query!");
                     return false;
                 }
+                logger.transactionLog("Tranaction committed successfully!");
 
             case "rollback":
                 if(!parseRollbackTransaction(userName, query)) {
                     System.out.println("Invalid query!");
                     return false;
                 }
+                logger.transactionLog("Tranaction rollback successfully!");
 
                 isTransaction = false;
                 return false;

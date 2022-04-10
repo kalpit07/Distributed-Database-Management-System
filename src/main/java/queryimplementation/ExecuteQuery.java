@@ -444,10 +444,7 @@ public class ExecuteQuery
             }
             at.addRule();
             String render_table = at.render();
-            System.out.println("\n");
-            System.out.println(query + ";");
             System.out.println(render_table);
-            System.out.println("\n");
 
             logger.eventLog(username, DATABASE, TABLE_NAME, query);
         }

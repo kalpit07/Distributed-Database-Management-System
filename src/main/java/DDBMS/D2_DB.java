@@ -159,6 +159,6 @@ public class D2_DB
         System.out.println();
         System.out.println("Welcome to D2_DB application..!");
         d2db.checkRootDirectory();
-        //menu.mainMenu();
+        menu.mainMenu();
     }
 }

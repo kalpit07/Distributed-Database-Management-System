@@ -21,8 +21,10 @@ public class Transaction
             startTime = System.currentTimeMillis();
             Transaction transaction = new Transaction();
             String id = Config.idGenerator();
+            logger.transactionLog("Transaction started!");
             transaction.takeInputQuery(userName, id);
-            System.out.println("Total time taken for transaction :"+ (endTime-startTime)/1000 + " sec." );
+            System.out.println("Total time taken for transaction :"+ (endTime-startTime)/1000 + " sec.\n" );
+            logger.transactionTime((endTime-startTime)/1000);
         }
         catch (Exception e)
         {
@@ -44,7 +46,7 @@ public class Transaction
             boolean flag = true;
             Scanner sc = new Scanner(System.in);
             while(flag){
-                System.out.println("transaction >");
+                System.out.println("\ntransaction >");
                 String query = sc.nextLine();
                 String[] queryWords = query.split("\\s+");
                 if(query.equalsIgnoreCase("commit;") || query.equalsIgnoreCase("rollback;")){

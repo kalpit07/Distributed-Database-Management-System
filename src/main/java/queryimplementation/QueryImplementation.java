@@ -42,7 +42,7 @@ public class QueryImplementation
             {
                 long startTime, endTime, execTime;
 
-                System.out.println("sql >");
+                System.out.println("\nsql >");
                 String query = sc.nextLine();
                 if(query.toLowerCase(Locale.ROOT).equals("exit"))
                 {

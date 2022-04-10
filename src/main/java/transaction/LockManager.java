@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Locale;
 
+import static DDBMS.D2_DB.VIRTUAL_MACHINE;
+
 public class LockManager
 {
     LogManagement logger = new LogManagement();
@@ -18,17 +20,17 @@ public class LockManager
         switch (checker)
         {
             case 0:
-                System.out.println("lock already taken on table: "+tableName+" by transaction: "+transactionId);
+               // System.out.println("lock already taken on table: "+tableName+" by transaction: "+transactionId);
                 return true;
 
             case 1:
-                System.out.println("Cannot provide lock on table: "+tableName+" because taken by: "+transactionId);
+               // System.out.println("Cannot provide lock on table: "+tableName+" because taken by: "+transactionId);
                 return false;
 
             case 4:
             case 5:
                 writer(tableName,transactionId);
-                System.out.println("Lock given to transaction : "+transactionId+" on table: "+tableName);
+               // System.out.println("Lock given to transaction : "+transactionId+" on table: "+tableName);
                 return true;
 
             default:
@@ -49,6 +51,8 @@ public class LockManager
 
               String[] table = words[2].split("\\(");
               return table[0];
+        } else if(words[0].equalsIgnoreCase("update")){
+            return words[1];
         }
         else {
             tableName = words[2];
@@ -60,7 +64,7 @@ public class LockManager
     {
         try
         {
-            File file = new File("./src/main/java/transaction.txt");
+            File file = new File(VIRTUAL_MACHINE + "/transaction.txt");
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -81,7 +85,7 @@ public class LockManager
         int answer = -1;
         try
         {
-            File file = new File("./src/main/java/transaction.txt");
+            File file = new File(VIRTUAL_MACHINE + "/transaction.txt");
             if(!file.exists()){
                 file.createNewFile();
                 return 5;
@@ -98,10 +102,10 @@ public class LockManager
             do{
                 int checker = lockChecker(tableName,transactionId,line);
                 if( checker == 0) {
-                    System.out.println("lock is already taken.");
+                  //  System.out.println("lock is already taken.");
                     return 0;
                 } else if(checker == 1) {
-                    System.out.println("table acquired by another table.");
+                   // System.out.println("table acquired by another table.");
                     return 1;
                 }
             }
@@ -120,7 +124,6 @@ public class LockManager
     {
 
         String[] transactionWords = line.split(";");
-        System.out.println(transactionWords[0]+"-----------"+transactionWords[1]);
         int flag = 0;
         if(transactionWords[1].equalsIgnoreCase(tableName)){
             if(transactionWords[0].equalsIgnoreCase(transactionId)){
@@ -145,12 +148,12 @@ public class LockManager
     {
         try
         {
-            File file = new File("./src/main/java/transaction.txt");
+            File file = new File(VIRTUAL_MACHINE + "/transaction.txt");
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.flush();
             fileWriter.close();
             file.delete();
-            System.out.println("Lock released!!");
+           // System.out.println("Lock released!!");
         }
         catch (Exception e)
         {

@@ -25,7 +25,7 @@ public class DataDumpHandler
 
     public DataDumpHandler() {}
 
-    public void writeGenerateQuery( String path, String pathFile, List<String> queries)
+    public void writeGenerateQuery( String path, String pathFile, List<String> queries, List<String> data)
     {
         try
         {
@@ -37,10 +37,12 @@ public class DataDumpHandler
                 {
                     FileWriter fw_local = new FileWriter(pathFile, true);
 
-                    for (String query:queries)
+                    for(int i = 0; i < queries.size(); i++)
                     {
-                        fw_local.write(query + "\n");
+                        fw_local.write(queries.get(i));
+                        fw_local.write(data.get(i));
                     }
+
                     fw_local.close();
                     result = true;
                 }
@@ -68,17 +70,15 @@ public class DataDumpHandler
         }
     }
 
-
     public void exportDump(String databaseName)
     {
         try
         {
             String filePath = BASE_DIRECTORY+databaseName+"/"+databaseName+"_metadata.txt";
             generateCreateQuery(filePath);
-            generateInsertQuery( filePath,databaseName);
-            writeGenerateQuery(BASE_DIRECTORY+ DUMP_FOLDER +databaseName,BASE_DIRECTORY+ DUMP_FOLDER +databaseName+"_SqlDump.txt",createQueries);
-            writeGenerateQuery(BASE_DIRECTORY+ DUMP_FOLDER +databaseName,BASE_DIRECTORY+ DUMP_FOLDER +databaseName+"_SqlDump.txt",dataDump);
-            System.out.println("SQL Dump file for this database path is : " + System.getProperty("user.dir") + BASE_DIRECTORY+ DUMP_FOLDER + databaseName +"_SqlDump.txt");
+            generateInsertQuery(filePath,databaseName);
+            writeGenerateQuery(BASE_DIRECTORY+ DUMP_FOLDER +databaseName,BASE_DIRECTORY+ DUMP_FOLDER +databaseName+"_SqlDump.sql",createQueries, dataDump);
+            System.out.println("SQL Dump file for this database path is : " + System.getProperty("user.dir") + BASE_DIRECTORY+ DUMP_FOLDER + databaseName +"_SqlDump.sql");
         }
         catch (Exception e)
         {
@@ -93,7 +93,8 @@ public class DataDumpHandler
         {
             File metadata = new File(filePath);
             Scanner reader = new Scanner(metadata);
-            while(reader.hasNextLine()){
+            while(reader.hasNextLine())
+            {
                 String line = reader.nextLine();
                 String[] line_parts = line.split("\\|");
                 String tableName=line_parts[0];
@@ -103,29 +104,31 @@ public class DataDumpHandler
                 Scanner tableReader = new Scanner(table);
                 boolean header=true;
                 StringBuilder dataBuilder=new StringBuilder();
+                dataBuilder.append("INSERT INTO ");
+                dataBuilder.append(tableName);
+                dataBuilder.append(" VALUES ");
                 while(tableReader.hasNextLine())
                 {
                     String currLine = tableReader.nextLine();
-                    if(header){
-                        header=false;
+                    if(header)
+                    {
+                        header = false;
                         continue;
                     }
-                    dataBuilder.append("INSERT INTO ");
-                    dataBuilder.append(tableName);
-                    dataBuilder.append(" VALUES (");
 
                     String []dataArr=currLine.split("\\|");
+                    dataBuilder.append("(");
                     for(int i=0; i<dataArr.length;i++){
                         dataBuilder.append(dataArr[i]);
                         dataBuilder.append(",");
                     }
-
-
                     dataBuilder.deleteCharAt(dataBuilder.length()-1);
-
-                    dataBuilder.append(");");
-
+                    dataBuilder.append("), ");
                 }
+                dataBuilder = new StringBuilder(dataBuilder.substring(0, dataBuilder.length() - 2));
+                dataBuilder.append(";");
+                dataBuilder.append("\n");
+                dataBuilder.append("\n");
                 dataDump.add(dataBuilder.toString());
 
             }
@@ -141,21 +144,24 @@ public class DataDumpHandler
     {
         try
         {
-            StringBuilder queryBuilder = new StringBuilder();
+            StringBuilder queryBuilder;
 
             File metadata = new File(filePath);
             Scanner reader = new Scanner(metadata);
             while(reader.hasNextLine())
             {
                 queryBuilder=new StringBuilder();
-                queryBuilder.append("CREATE TABLE ");
                 String line = reader.nextLine();
                 String[] line_parts = line.split("\\|");
                 String tableName=line_parts[0];
+                queryBuilder.append("DROP TABLE IF EXISTS '");
+                queryBuilder.append(tableName);
+                queryBuilder.append("';");
+                queryBuilder.append("\n");
+                queryBuilder.append("CREATE TABLE ");
                 queryBuilder.append(tableName);
                 queryBuilder.append(" (");
                 String columnInfo=line_parts[1];
-
 
                 String[] column_parts = columnInfo.split(",");
                 String []primaryKeyInfo=new String[3];
@@ -183,6 +189,7 @@ public class DataDumpHandler
                 {
                     queryBuilder.delete(queryBuilder.length()-2,queryBuilder.length()-1);
                     queryBuilder.append(");");
+                    queryBuilder.append("\n");
                     createQueries.add(queryBuilder.toString());
                     continue;
                 }
@@ -191,6 +198,7 @@ public class DataDumpHandler
                     queryBuilder.append("PRIMARY KEY (");
                     queryBuilder.append(primaryKeyInfo[0]);
                     queryBuilder.append("));");
+                    queryBuilder.append("\n");
                     createQueries.add(queryBuilder.toString());
                     continue;
                 }
@@ -201,6 +209,7 @@ public class DataDumpHandler
                     queryBuilder.append(") REFERENCES ");
                     queryBuilder.append(foreignKeyInfo[4]);
                     queryBuilder.append(");");
+                    queryBuilder.append("\n");
                     createQueries.add(queryBuilder.toString());
                     continue;
                 }
@@ -214,6 +223,7 @@ public class DataDumpHandler
                 queryBuilder.append(foreignKeyInfo[4]);
                 queryBuilder.append(")");
                 queryBuilder.append(";");
+                queryBuilder.append("\n");
                 createQueries.add(queryBuilder.toString());
             }
         }

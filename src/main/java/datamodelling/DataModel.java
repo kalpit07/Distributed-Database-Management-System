@@ -103,7 +103,7 @@ public class DataModel
                     s += nameOfTable[0] + "|" + split[0] + "   ->   " + split[4].replaceAll("\\(.*\\)", "" + "|" + answer);
                     Relation.add(s);
                     String ca = "";
-                    ca = nameOfTable[0] + ":" + split[0] + "(N)   ->   " + split[4].replaceAll("\\(.*\\)", "" + ":" + str.substring(str.indexOf("(")+1, str.indexOf(")"))) + " (1)";
+                    ca = nameOfTable[0] + ":" + split[0] + "(n)  ->  " + split[4].replaceAll("\\(.*\\)", "" + ":" + str.substring(str.indexOf("(")+1, str.indexOf(")"))) + "(1)";
                     cardinality.add(ca);
                 }
             }
@@ -136,7 +136,7 @@ public class DataModel
             }
 
             fileWriter.write("\n------------------------------------------------\n");
-            fileWriter.write("Relationship with:  "  );
+            fileWriter.write("Relationship with: ");
             for (String s: cardinality) {
                 fileWriter.write(s);
             }

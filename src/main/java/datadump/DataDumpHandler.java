@@ -39,8 +39,22 @@ public class DataDumpHandler
 
                     for(int i = 0; i < queries.size(); i++)
                     {
-                        fw_local.write(queries.get(i));
-                        fw_local.write(data.get(i));
+                        if(queries.size() > 0)
+                        {
+                            fw_local.write(queries.get(i));
+                        }
+//                        fw_local.write(queries.get(i));
+//                        fw_local.write(data.get(i));
+                    }
+
+                    for(int i = 0; i < data.size(); i++)
+                    {
+
+                        if(data.size() > 0)
+                        {
+                            fw_local.write(data.get(i));
+                        }
+
                     }
 
                     fw_local.close();
@@ -107,15 +121,17 @@ public class DataDumpHandler
                 dataBuilder.append("INSERT INTO ");
                 dataBuilder.append(tableName);
                 dataBuilder.append(" VALUES ");
+                boolean hasValue = false;
                 while(tableReader.hasNextLine())
                 {
+
                     String currLine = tableReader.nextLine();
                     if(header)
                     {
                         header = false;
                         continue;
                     }
-
+                    hasValue = true;
                     String []dataArr=currLine.split("\\|");
                     dataBuilder.append("(");
                     for(int i=0; i<dataArr.length;i++){
@@ -129,8 +145,10 @@ public class DataDumpHandler
                 dataBuilder.append(";");
                 dataBuilder.append("\n");
                 dataBuilder.append("\n");
-                dataDump.add(dataBuilder.toString());
-
+                if(hasValue)
+                {
+                    dataDump.add(dataBuilder.toString());
+                }
             }
         }
         catch (Exception e)
@@ -177,7 +195,8 @@ public class DataDumpHandler
                     }
                     for(int i=0;i<2;i++ ){
                         queryBuilder.append(colInfo[i]);
-                        if(i==1){
+                        if(i==1)
+                        {
                             queryBuilder.append(",");
                         }
                         queryBuilder.append(" ");
@@ -187,7 +206,7 @@ public class DataDumpHandler
                 }
                 if(primaryKeyInfo[0]==null && foreignKeyInfo[0]==null)
                 {
-                    queryBuilder.delete(queryBuilder.length()-2,queryBuilder.length()-1);
+                    queryBuilder.delete(queryBuilder.length()-2,queryBuilder.length()-2);
                     queryBuilder.append(");");
                     queryBuilder.append("\n");
                     createQueries.add(queryBuilder.toString());

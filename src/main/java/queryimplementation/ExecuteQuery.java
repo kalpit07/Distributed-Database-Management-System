@@ -39,8 +39,10 @@ public class ExecuteQuery
             fw_global.close();
             fw_local.close();
 
-            System.out.println("");
-            logger.eventLog(username, DATABASE, TABLE_NAME, query);
+            if (!isTransaction) {
+                System.out.println("Database " + database + " has been created!");
+            }
+            logger.eventLog(username, database, TABLE_NAME, query);
         }
         catch (Exception e)
         {
@@ -164,6 +166,10 @@ public class ExecuteQuery
             t.write(header);
             t.close();
 
+            if (!isTransaction) {
+                System.out.println("Table " + TABLE_NAME + " has been created!");
+            }
+
             logger.eventLog(username, DATABASE, TABLE_NAME, query);
         }
         catch (Exception e)
@@ -205,6 +211,7 @@ public class ExecuteQuery
         String database = queryParts[1];
 
         DATABASE = database;
+        System.out.println("Database changed!");
     }
 
     public void executeInsert(String username, String query)
@@ -237,6 +244,7 @@ public class ExecuteQuery
             fw.write(data);
             fw.close();
 
+            System.out.println("Values have been inserted into " + TABLE_NAME + " table!");
             logger.eventLog(username, DATABASE, TABLE_NAME, query);
         }
         catch (Exception e)
@@ -288,6 +296,9 @@ public class ExecuteQuery
                     column_name = column_name.substring(0, column_name.indexOf("=")).trim();
 
                     String value = query.substring(query.indexOf("=") + "=".length()).trim();
+                    if (value.contains("'")) {
+                        value = value.substring(1, value.length()-1);
+                    }
 
                     int column_number=0;
                     for (int j=0; j<column_names.size(); j++) {
@@ -298,8 +309,6 @@ public class ExecuteQuery
                     }
 
                     data.add(header);
-                    System.out.println("HEADER :: " + header);
-                    System.out.println("VALUE :: " + value);
                     if (value.contains("'")) {
                         value = value.trim();
                         value = value.substring(1, value.length()-1).trim();
@@ -330,10 +339,13 @@ public class ExecuteQuery
                 // Column names
 
                 if (query.contains("where")) {
-                    String column_name = query.substring(query.indexOf("where ") + "where ".length());
+                    String column_name = query.substring(query.indexOf("where ") + "where ".length()).trim();
                     column_name = column_name.substring(0, column_name.indexOf("=")).trim();
 
                     String value = query.substring(query.indexOf("=") + "=".length()).trim();
+                    if (value.contains("'")) {
+                        value = value.substring(1, value.length()-1);
+                    }
 
                     // get require column names and number
                     List<Integer> column_numbers = new ArrayList<Integer>();
@@ -415,10 +427,8 @@ public class ExecuteQuery
                 }
 
             }
-            System.out.println(data);
             AsciiTable at = new AsciiTable();
             boolean is_header = true;
-            System.out.println(data.size());
 
             for (String d : data) {
                 if(is_header) {
@@ -586,6 +596,7 @@ public class ExecuteQuery
                     writer.write(overWrite);
                     writer.close();
 
+                    System.out.println("Values in the table " + TABLE_NAME + " have been updated!");
                     logger.eventLog(username, DATABASE, TABLE_NAME, query);
                 }
             }
@@ -716,6 +727,7 @@ public class ExecuteQuery
                     writer.write(overWrite);
                     writer.close();
 
+                    System.out.println("Values from the table " + TABLE_NAME + " have been deleted!");
                     logger.eventLog(username, DATABASE, TABLE_NAME, query);
                 }
             }

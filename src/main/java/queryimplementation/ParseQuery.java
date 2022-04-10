@@ -1,5 +1,6 @@
 package queryimplementation;
 import logmanagement.LogManagement;
+import transaction.Transaction;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,8 +39,16 @@ public class ParseQuery
 
     // delete from Students where ID = 51;
     public static String REGEX_FOR_QUERY_DELETE = "\\s*delete\\s+from\\s+[0-9a-zA-Z_]+\\s+where\\s+[0-9a-zA-Z_]+\\s*=\\s*('[0-9a-zA-Z _?!@&*()-]*'|\\d+)\\s*;\\s*";
-    
-    public static String REGEX_FOR_TRANSACTION = "\\s*start\\s+transaction\\s*;\\s*";
+
+    // start transaction;
+    public static String REGEX_FOR_START_TRANSACTION = "\\s*start\\s+transaction\\s*;\\s*";
+
+    // commit;
+    public static String REGEX_FOR_COMMIT_TRANSACTION = "\\s*commit\s*;\s*";
+
+    // rollback;
+    public static String REGEX_FOR_ROLLBACK_TRANSACTION = "\\s*rollback\\s*;\\s*";
+
 
     // ---------------------------------------------------------------------------------------------------------------
 
@@ -95,7 +104,7 @@ public class ParseQuery
         }
     }
 
-    public boolean parseCreateDatabase(String query)
+    public boolean parseCreateDatabase(String userName, String query)
     {
         boolean answer = false;
         try
@@ -131,7 +140,7 @@ public class ParseQuery
         return answer;
     }
 
-    public boolean parseCreateTable(String query)
+    public boolean parseCreateTable(String userName, String query)
     {
         boolean answer = false;
         try
@@ -359,7 +368,7 @@ public class ParseQuery
         return answer;
     }
 
-    public boolean parseCreate(String query)
+    public boolean parseCreate(String userName, String query)
     {
         boolean answer = false;
         try
@@ -374,11 +383,11 @@ public class ParseQuery
                 switch (createWhat)
                 {
                     case "database":
-                        answer = parseCreateDatabase(query);
+                        answer = parseCreateDatabase(userName, query);
                         break;
 
                     case "table":
-                        answer = parseCreateTable(query);
+                        answer = parseCreateTable(userName, query);
                         break;
 
                     default:
@@ -400,7 +409,7 @@ public class ParseQuery
         return answer;
     }
 
-    public boolean parseUse(String query)
+    public boolean parseUse(String userName, String query)
     {
         boolean answer = false;
         try
@@ -432,7 +441,7 @@ public class ParseQuery
         return answer;
     }
 
-    public boolean parseInsert(String query)
+    public boolean parseInsert(String userName, String query)
     {
         boolean answer = false;
         try
@@ -505,6 +514,50 @@ public class ParseQuery
 
                     if (value_len != col_len) {
                         return false;
+                    }
+
+                    // Unique primary key
+                    if (column_string.toLowerCase().contains("primary_key")) {
+                        column_string = column_string.trim().toLowerCase();
+                        System.out.println(column_string);
+
+                        int c_number_check = -1;
+                        int final_c_number = 0;
+
+                        boolean unique_primary_value = true;
+                        String c_name = "";
+                        String[] column_details = column_string.split(",");
+                        for (String column_detail : column_details) {
+                            c_number_check += 1;
+                            if (column_detail.contains("primary_key")) {
+                                c_name = column_detail.trim().split("\\s+")[0];
+                                final_c_number = c_number_check;
+
+                                String values = query.substring(query.indexOf("values") + "values".length());
+                                values = values.substring(values.indexOf("(") + "(".length(), values.indexOf(")"));
+
+                                String value = values.trim().split(",")[final_c_number].trim();
+
+                                String file_p = BASE_DIRECTORY + DATABASE + "/" + TABLE_NAME + ".txt";
+                                System.out.println(file_p);
+                                File fl = new File(file_p);
+                                Scanner scanner = new Scanner(fl);
+                                while (scanner.hasNextLine()) {
+                                    String data = scanner.nextLine();
+                                    String[] data_parts = data.split("\\|");
+
+                                    for (String one_value : data_parts) {
+                                        if (one_value.trim().equals(value.trim())) {
+                                            unique_primary_value = false;
+                                            System.out.println("Duplicate primary key value!");
+                                            return false;
+                                        }
+                                    }
+                                }
+                                scanner.close();
+                            }
+
+                        }
                     }
 
                     // Checking foreign key
@@ -633,7 +686,7 @@ public class ParseQuery
         return answer;
     }
 
-    public boolean parseSelect(String query)
+    public boolean parseSelect(String userName, String query)
     {
         boolean answer = false;
         try
@@ -681,6 +734,10 @@ public class ParseQuery
                         boolean where_column_found = false;
 
                         String where_value = query.substring(query.indexOf("=") + "=".length()).trim();
+                        if (where_value.contains("'")) {
+                            where_value = where_value.trim();
+                            where_value = where_value.substring(1, where_value.length()-1);
+                        }
                         String filepath = BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt";
                         File f = new File(filepath);
                         Scanner s = new Scanner(f);
@@ -710,6 +767,7 @@ public class ParseQuery
 
                         // Check for * or column names
                         if (!query.contains("*")) {
+                            System.out.println("HEHEHEHEHEHEHEHEHEHE");
                             // specific columns
                             String specific_cols = query.substring(query.indexOf("select") + "select".length(), query.indexOf("from")).trim();
                             String[] specific_columns = specific_cols.split(",");
@@ -834,7 +892,7 @@ public class ParseQuery
         return answer;
     }
 
-    public boolean parseUpdate(String query)
+    public boolean parseUpdate(String userName, String query)
     {
         boolean answer = false;
         try
@@ -889,7 +947,7 @@ public class ParseQuery
         return answer;
     }
 
-    public boolean parseDelete(String query)
+    public boolean parseDelete(String userName, String query)
     {
         boolean answer = false;
         try
@@ -957,6 +1015,39 @@ public class ParseQuery
         return answer;
     }
 
+    public boolean parseStartTransaction(String userName, String query) {
+        Matcher matcher = Pattern.compile(REGEX_FOR_START_TRANSACTION).matcher(query);
+        if (matchQuery(matcher, "START TRANSACTION")) {
+            return true;
+        } else {
+            System.out.println("Invalid query!");
+            return false;
+        }
+
+    }
+
+    public boolean parseCommitTransaction(String userName, String query) {
+        Matcher matcher = Pattern.compile(REGEX_FOR_COMMIT_TRANSACTION).matcher(query);
+        if (matchQuery(matcher, "COMMIT")) {
+            return true;
+        } else {
+            System.out.println("Invalid query!");
+            return false;
+        }
+
+    }
+
+    public boolean parseRollbackTransaction(String userName, String query) {
+        Matcher matcher = Pattern.compile(REGEX_FOR_ROLLBACK_TRANSACTION).matcher(query);
+        if (matchQuery(matcher, "ROLLBACK")) {
+            return true;
+        } else {
+            System.out.println("Invalid query!");
+            return false;
+        }
+
+    }
+
     public boolean parseQuery(String userName, String query)
     {
         query = query.toLowerCase();
@@ -965,27 +1056,53 @@ public class ParseQuery
         switch (queryType)
         {
             case "create":
-                return parseCreate(query);
+                return parseCreate(userName, query);
 
             case "use":
-                return parseUse(query);
+                return parseUse(userName, query);
 
             case "insert":
-                return parseInsert(query);
+                return parseInsert(userName, query);
 
             case "select":
-                return parseSelect(query);
+                return parseSelect(userName, query);
 
             case "update":
-                return parseUpdate(query);
+                return parseUpdate(userName, query);
 
             case "delete":
-                return parseDelete(query);
+                return parseDelete(userName, query);
 
             case "start":
-                // Transaction
-                // startTransaction();
-                return true;
+                if(parseStartTransaction(userName, query)) {
+                    Transaction transaction = new Transaction();
+                    try
+                    {
+                        transaction.startTransaction(userName);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        logger.crashReport(e);
+                    }
+                }
+                return false;
+
+            case "commit":
+                if(!parseCommitTransaction(userName, query)) {
+                    System.out.println("Invalid query!");
+                    return false;
+                }
+
+            case "rollback":
+                if(!parseRollbackTransaction(userName, query)) {
+                    System.out.println("Invalid query!");
+                    return false;
+                }
+
+                isTransaction = false;
+                return false;
+
             default:
                 System.out.println("Invalid Query Type! - " + queryType.toUpperCase());
                 return false;

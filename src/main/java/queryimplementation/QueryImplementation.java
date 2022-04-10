@@ -12,10 +12,7 @@ public class QueryImplementation
     public static String DATABASE;
     public static String TABLE_NAME;
 
-
-    public static String VM_INSTANCE = "VM1";
-
-    public static String BASE_DIRECTORY = "VM/";
+    public static boolean isTransaction = false;
 
     public static String LOCAL_METADATA_FILE = "Local_Meta_Data.txt";
     public static String GLOBAL_METADATA_FILE = "Global_Data_Dictionary.txt";
@@ -45,6 +42,7 @@ public class QueryImplementation
             {
                 long startTime, endTime, execTime;
 
+                System.out.println("sql >");
                 String query = sc.nextLine();
                 if(query.toLowerCase(Locale.ROOT).equals("exit"))
                 {
@@ -66,10 +64,15 @@ public class QueryImplementation
                     }
                     else
                     {
-                        System.out.println("You entered an invalid query. Please enter a valid query.");
-                        if(DATABASE != null)
-                        {
-                            logger.queryLog(userName, DATABASE, query);
+                        if (query.toLowerCase().contains("start")) {
+                            System.out.println("Transaction Ended!");
+                        }
+                        else {
+                            System.out.println("You entered an invalid query. Please enter a valid query.");
+                            if(DATABASE != null)
+                            {
+                                logger.queryLog(userName, DATABASE, query);
+                            }
                         }
                     }
                 }

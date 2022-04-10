@@ -206,7 +206,7 @@ public class DataDumpHandler
                 }
                 if(primaryKeyInfo[0]==null && foreignKeyInfo[0]==null)
                 {
-                    queryBuilder.delete(queryBuilder.length()-2,queryBuilder.length()-2);
+                    queryBuilder.delete(queryBuilder.length()-2,queryBuilder.length());
                     queryBuilder.append(");");
                     queryBuilder.append("\n");
                     createQueries.add(queryBuilder.toString());

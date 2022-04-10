@@ -170,7 +170,7 @@ public class Analysis
                     if(each.equals(dbName))
                     {
                         flag = true;
-                        analysisObj.countUpdateQueries("MyDatabase");
+                        analysisObj.countUpdateQueries(each);
                     }
                 }
                 if(!flag)

@@ -5,10 +5,11 @@ import java.io.File;
 
 public class D2_DB
 {
+    public static String VIRTUAL_MACHINE = "VM1";
+
     public static String LOCAL_METADATA_FILE = "Local_Meta_Data.txt";
     public static String GLOBAL_METADATA_FILE = "Global_Data_Dictionary.txt";
     public static String USER_PROFILE = "User_Profile.txt";
-    public static String VIRTUAL_MACHINE = "VM1";
     public static String BASE_DIRECTORY = VIRTUAL_MACHINE + "/";
     public static String EVENT_LOG = "Event_Log.txt";
     public static String QUERY_LOG = "Query_Log.txt";

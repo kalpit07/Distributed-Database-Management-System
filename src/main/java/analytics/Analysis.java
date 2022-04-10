@@ -46,7 +46,7 @@ public class Analysis
                         hmap.put(each, 1);
                     }
                 }
-                countQueries.write("\nAnalytics report for the user logged in for queries executed on the databases\n");
+                countQueries.write("Analytics report for the user logged in for queries executed on the databases\n");
                 countQueries.write("-----------------------------------------------------------------------------\n");
                 System.out.println("Database Queries!");
                 System.out.println("-----------------------------------------------------------------------------");
@@ -164,17 +164,18 @@ public class Analysis
                 {
                     e.printStackTrace();
                 }
+                boolean flag = false;
                 for(String each : DATABASES)
                 {
                     if(each.equals(dbName))
                     {
+                        flag = true;
                         analysisObj.countUpdateQueries("MyDatabase");
                     }
-                    else
-                    {
-                        System.out.println("The database you entered is not present in the databases!");
-                        System.out.println("Please try again!");
-                    }
+                }
+                if(!flag)
+                {
+                    System.out.println("The database you entered is not available. Please try again!");
                 }
                 break;
             }

@@ -1,5 +1,7 @@
 package userinterface;
 import analytics.Analysis;
+import datadump.DataDumpHandler;
+import datamodelling.DataModel;
 import logmanagement.LogManagement;
 import queryimplementation.QueryImplementation;
 import java.util.Scanner;
@@ -9,6 +11,8 @@ public class Menu
     Registration register = new Registration();
     QueryImplementation query = new QueryImplementation();
     LogManagement logger = new LogManagement();
+    DataModel dataModel = new DataModel();
+    DataDumpHandler dump = new DataDumpHandler();
 
     public void mainMenu()
     {
@@ -72,6 +76,8 @@ public class Menu
             System.out.println("4. ANALYTICS");
             System.out.println("5. SHOW LOGS");
             System.out.println("6. EXIT");
+            System.out.println();
+            System.out.print("Your choice : ");
             Scanner sc1 = new Scanner(System.in);
             int option = sc1.nextInt();
 
@@ -86,12 +92,19 @@ public class Menu
 
                 case 2:
                 {
-
+                    System.out.println("Welcome to Export Dump Module");
+                    System.out.println("Please enter a database for SQL Dump: ");
+                    Scanner sc2 = new Scanner(System.in);
+                    String database = sc2.nextLine();
+                    dump.exportDump(database);
+                    break;
                 }
 
                 case 3:
                 {
-
+                    String[] temp = {userName};
+                    dataModel.main(temp);
+                    break;
                 }
 
                 case 4:

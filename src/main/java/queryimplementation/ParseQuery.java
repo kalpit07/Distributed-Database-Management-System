@@ -44,7 +44,7 @@ public class ParseQuery
     public static String REGEX_FOR_START_TRANSACTION = "\\s*start\\s+transaction\\s*;\\s*";
 
     // commit;
-    public static String REGEX_FOR_COMMIT_TRANSACTION = "\\s*commit\s*;\s*";
+    public static String REGEX_FOR_COMMIT_TRANSACTION = "\\s*commit\\s*;\\s*";
 
     // rollback;
     public static String REGEX_FOR_ROLLBACK_TRANSACTION = "\\s*rollback\\s*;\\s*";

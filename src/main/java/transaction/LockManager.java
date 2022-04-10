@@ -25,7 +25,8 @@ public class LockManager
                 System.out.println("Cannot provide lock on table: "+tableName+" because taken by: "+transactionId);
                 return false;
 
-            case 4,5:
+            case 4:
+            case 5:
                 writer(tableName,transactionId);
                 System.out.println("Lock given to transaction : "+transactionId+" on table: "+tableName);
                 return true;

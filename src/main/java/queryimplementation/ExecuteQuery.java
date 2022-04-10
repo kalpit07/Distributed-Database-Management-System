@@ -638,7 +638,15 @@ public class ExecuteQuery
             {
                 String line = "";
                 File metadata = new File(BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt");
-                String wholeFile = Files.readString(Path.of(BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt"));
+//                String wholeFile = Files.readString(Path.of(BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt"));
+                String wholeFile = "";
+                File f = new File (BASE_DIRECTORY + DATABASE + "/" + DATABASE + "_metadata.txt");
+                Scanner sc = new Scanner(f);
+                while (sc.hasNextLine()) {
+                    String data = sc.nextLine();
+                    wholeFile += data;
+
+                }
                 BufferedReader checkForDeleteType = new BufferedReader(new FileReader(metadata));
                 while((line = checkForDeleteType.readLine()) != null)
                 {

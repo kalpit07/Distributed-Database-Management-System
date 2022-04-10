@@ -18,7 +18,10 @@ public class DataModel
         try
         {
             File VM = new File(BASE_DIRECTORY);
-            List<String> checkDB = List.of(VM.list());
+            List<String> checkDB = new ArrayList<>();
+            for (String name : VM.list()) {
+                checkDB.add(name);
+            }
             String em = getFromMetadata(database);
             if(em.contains(database))
             {

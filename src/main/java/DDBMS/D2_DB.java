@@ -5,7 +5,7 @@ import java.io.File;
 
 public class D2_DB
 {
-    public static String VIRTUAL_MACHINE = "VM1";
+    public static String VIRTUAL_MACHINE = "VM2";
 
     public static String LOCAL_METADATA_FILE = "Local_Meta_Data.txt";
     public static String GLOBAL_METADATA_FILE = "Global_Data_Dictionary.txt";

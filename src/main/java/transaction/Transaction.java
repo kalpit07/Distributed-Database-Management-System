@@ -59,9 +59,14 @@ public class Transaction
                     execute.executeQuery(userName, query);
                     String database = queryWords[1];
                 } else if(queryWords[0].equalsIgnoreCase("create") && queryWords[1].equalsIgnoreCase("table")){
+                    boolean personalChecker;
                     if(checker){
-                        parse.parseQuery(userName, query);
-                        execute.executeQuery(userName, query);
+                        personalChecker=parse.parseQuery(userName, query);
+                        if(personalChecker){
+                            execute.executeQuery(userName, query);
+                        } else {
+                            System.out.println("Syntactical Error!");
+                        }
                     }
                 } else if(queryWords[0].equalsIgnoreCase("create") && queryWords[1].equalsIgnoreCase("database")){
                     if(checker){
